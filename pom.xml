@@ -11,7 +11,7 @@
     </parent>
 
     <!-- Component Definition -->
-    <name>OpenAM Auth Radius</name>
+    <name>OpenAM Authn Radius Modules</name>
     <version>1.0.0-SNAPSHOT</version>
     <description>OpenAM Authentication Radius</description>
     <artifactId>openam-auth-radius</artifactId>
