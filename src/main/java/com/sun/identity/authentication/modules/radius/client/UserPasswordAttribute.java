@@ -41,6 +41,18 @@ public class UserPasswordAttribute extends Attribute
 	private String _password = null;
 
     /**
+     * Indicate in which direction we are processing since the algorith is mostly the same save for building the md5
+     * hash blocks after the initial one. For encrypting it pulls from the resultant cipher text. For decrypting, the
+     * cipher text is what is being decrypted (via XOR'ing again with the same hashes) so the hashes must be generated
+     * using the cipher texts so that they are the same else XOR'ing's restorative nature won't work resulting in all
+     * characters past the first 16 character block being garbled.
+     */
+    private static enum Direction {
+        ENCRYPT,
+        DECRYPT;
+    }
+
+    /**
      * The raw on-the-wire bytes representing this attribute when instantiated to recover password.
      */
     private byte[] _raw = null;
@@ -70,7 +82,7 @@ public class UserPasswordAttribute extends Attribute
 		_password = password;
 	}
 
-    private byte[] convert(byte[] value) throws IOException {
+    private byte[] convert(byte[] value, Direction direction) throws IOException {
         MessageDigest md5 = null;
         try {
             md5 = MessageDigest.getInstance("MD5");
@@ -82,7 +94,12 @@ public class UserPasswordAttribute extends Attribute
         byte sum[] = md5.digest();
 
         byte up[] = value;
-        int oglen = (up.length/16) + 1;
+        int oglen = (up.length/16);
+
+        // increase number of blocks in output array if we don't have a multiple of 16 bytes in value
+        if (up.length%16 != 0) {
+            oglen = oglen + 1;
+        }
         byte ret[] = new byte[oglen * 16];
         for (int i = 0; i < ret.length; i++) {
             if ((i % 16) == 0) {
@@ -94,7 +111,16 @@ public class UserPasswordAttribute extends Attribute
             } else {
                 ret[i] = (byte)(sum[i%16] ^ 0);
             }
-            md5.update(ret[i]);
+
+            // always use the cipher bytes for updating the md5 hashes otherwise all blocks after the first will be
+            // garbled upon decrypting rendering all passwords greater than 16 characters useless since they will be
+            // incorrect.
+            if (direction == Direction.ENCRYPT) {
+                md5.update(ret[i]);
+            }
+            else {
+                md5.update(up[i]);
+            }
             if ((i % 16) == 15) {
                 sum = md5.digest();
             }
@@ -110,7 +136,7 @@ public class UserPasswordAttribute extends Attribute
      */
 	public byte[] getValue() throws IOException
 	{
-        return convert(_password.getBytes());
+        return convert(_password.getBytes(), Direction.ENCRYPT);
 	}
 
     /**
@@ -135,7 +161,7 @@ public class UserPasswordAttribute extends Attribute
         int valLen = (((int) _raw[1]) & 0xFF) -2; // trims off sign extension bits, subtracts type and length prefix octets
         byte[] cypherText = new byte[valLen];
         System.arraycopy(_raw, 2, cypherText, 0, valLen);
-        byte[] clearText = convert(cypherText);
+        byte[] clearText = convert(cypherText, Direction.DECRYPT);
 
         // trim off any null padding
         int i = 0;

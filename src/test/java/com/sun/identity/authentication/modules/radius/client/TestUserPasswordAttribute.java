@@ -7,6 +7,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 /**
  * Created by markboyd on 6/19/14.
@@ -38,4 +40,72 @@ public class TestUserPasswordAttribute {
         String pwd = upa.extractPassword(authnctr, clientSecret);
         Assert.assertEquals(pwd, "secret", "passwords should be 'secret'");
     }
+
+    SecureRandom rand = new SecureRandom();
+    String secret = "my-secret";
+
+    /**
+     * Tests the first boundary incurrence meaning the password length is the same length as the 16 byte hash used for
+     * XOR'ing.
+     *
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    @Test
+    public void test15charPwd() throws NoSuchAlgorithmException, IOException {
+        String pwd15 = "123456789_12345";
+        SecureRandom rand = new SecureRandom();
+        RequestAuthenticator ra = new RequestAuthenticator(rand, secret);
+        UserPasswordAttribute upa = new UserPasswordAttribute(ra, secret, pwd15);
+        byte[] bytes = upa.getData();
+        UserPasswordAttribute upa2 = new UserPasswordAttribute(bytes);
+        String pwd = upa2.extractPassword(ra, secret);
+        Assert.assertEquals(pwd, pwd15, "15 character password should be the same after decoding.");
+    }
+
+
+    /**
+     * Tests the first boundary incurrence meaning the password length is one char more than the 16 byte hash used for
+     * XOR'ing.
+     *
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    @Test
+    public void test16charPwd() throws NoSuchAlgorithmException, IOException {
+        String pwd = "123456789_123456";
+        SecureRandom rand = new SecureRandom();
+        RequestAuthenticator ra = new RequestAuthenticator(rand, secret);
+        UserPasswordAttribute upa = new UserPasswordAttribute(ra, secret, pwd);
+        byte[] bytes = upa.getData();
+        UserPasswordAttribute upa2 = new UserPasswordAttribute(bytes);
+        String pwd2 = upa2.extractPassword(ra, secret);
+        Assert.assertEquals(pwd2, pwd, "16 character password should be the same after decoding.");
+    }
+
+
+    @Test
+    public void test36charPwd() throws NoSuchAlgorithmException, IOException {
+        String pwd = "123456789_123456789_123456";
+        SecureRandom rand = new SecureRandom();
+        RequestAuthenticator ra = new RequestAuthenticator(rand, secret);
+        UserPasswordAttribute upa = new UserPasswordAttribute(ra, secret, pwd);
+        byte[] bytes = upa.getData();
+        UserPasswordAttribute upa2 = new UserPasswordAttribute(bytes);
+        String pwd2 = upa2.extractPassword(ra, secret);
+        Assert.assertEquals(pwd2, pwd, "36 character password should be the same after decoding.");
+    }
+
+    @Test
+    public void testMultiByteCharPwd() throws NoSuchAlgorithmException, IOException {
+        String pwd = "ソフトウェア建築家"; // my poor attempt at "software architect" in japanese
+        SecureRandom rand = new SecureRandom();
+        RequestAuthenticator ra = new RequestAuthenticator(rand, secret);
+        UserPasswordAttribute upa = new UserPasswordAttribute(ra, secret, pwd);
+        byte[] bytes = upa.getData();
+        UserPasswordAttribute upa2 = new UserPasswordAttribute(bytes);
+        String pwd2 = upa2.extractPassword(ra, secret);
+        Assert.assertEquals(pwd2, pwd, "multibyte character password should be the same after decoding.");
+    }
+
 }

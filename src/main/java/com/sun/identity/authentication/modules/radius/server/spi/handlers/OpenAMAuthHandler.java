@@ -777,7 +777,7 @@ public class OpenAMAuthHandler implements AccessRequestHandler {
         ReplyMessageAttribute msg = null;
         Callback cb = holder.callbacks[holder.idxOfCurrentCallback];
         String header = (holder.callbackSetProps != null && ! "".equals(holder.callbackSetProps.getHeader()) ?
-                holder.callbackSetProps.getHeader() : "");
+                holder.callbackSetProps.getHeader() + " " : "");
 
         if (cb instanceof NameCallback) {
             msg = new ReplyMessageAttribute(header + ((NameCallback) cb).getPrompt());
