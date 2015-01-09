@@ -26,7 +26,8 @@ public class StartupCoordinator {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                cLog.log(Level.SEVERE, "Unable to see if OpenAM config is valid. Hence can't start up RADIUS service coordinator.", e);
+                cLog.log(Level.SEVERE, "Interrupted while waiting for for OpenAM to start up. Existing Radius "
+                + this.getClass().getSimpleName() + ".");
                 return false;
             }
         }
