@@ -122,6 +122,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.sun.identity.authentication.modules.radius.ConsoleClient</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Specification-Title>OpenAM Auth Radius</Specification-Title>
