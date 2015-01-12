@@ -94,7 +94,9 @@ public class TestPacketFactory {
         Assert.assertEquals(una.getName(), "nemo");
     }
 
-    @Test
+    // dumps out to console different views of a byte including as a short, int, and byte value and the hexadecimal
+    // and signed interpretation.
+    //@Test
     private void testBytes() {
         byte b = 0x00;
         byte[] bytes = new byte[1];
