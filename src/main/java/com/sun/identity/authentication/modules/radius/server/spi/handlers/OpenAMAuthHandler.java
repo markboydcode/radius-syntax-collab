@@ -18,9 +18,8 @@ import java.util.logging.Logger;
 
 /**
  * This RADIUS handler authenticates against an authentication chain and realm specified via configuration. It uses
- * OpenAM's AuthContextLocal object meaning it is authenticating in-process and not proxying to another server in the
- * cluster. This flow is as follows. It is also important to note that challenge answers are passed in the RADIUS
- * packet via the password field.
+ * OpenAM's AuthContext object. This flow is as follows. It is also important to note that challenge answers are passed
+ * in the RADIUS packet via the password field as per spec.
  *
  * <pre>
  *
@@ -29,7 +28,7 @@ import java.util.logging.Logger;
  *      | AccessRequest                        .
  *      | [username + password]                .
  *      + -----------------------------------> +
- *      .                                      | ac = new AuthContextLocal(realm)
+ *      .                                      | ac = new AuthContext(realm)
  *      .                                      | ac.login()
  *      .                                      |
  *      .   at a minimum the auth chain used   | ac.hasMoreRequirements()
@@ -51,7 +50,7 @@ import java.util.logging.Logger;
  *      | AccessRequest                        .    .    .
  *      | [username + answer + state(n)]       .    .    .
  *      + ---------------------------------------------> +
- *      .                                      .    .    | inject value(s) into cbs(n)
+ *      .                                      .    .    | inject value into cbs(n)
  *      .                                      .    +----+
  *      .                                      .    |
  *      .                                      .    | ac.submit(cbs)
@@ -72,7 +71,8 @@ public class OpenAMAuthHandler implements AccessRequestHandler {
     private static final Logger cLog = Logger.getLogger(OpenAMAuthHandler.class.getName());
 
     /**
-     * Holds the ContextHolder instances between calls from clients.
+     * Holds the ContextHolder instances between calls from clients. ContextHolder includes the OpenAM AuthContext
+     * object that keeps track of where the user is in the process of authenticating.
      */
     private static final Map<String, ContextHolder> contextCache = new HashMap<String, ContextHolder>();
 
@@ -124,17 +124,6 @@ public class OpenAMAuthHandler implements AccessRequestHandler {
             }
         }
     };
-
-    /**
-     * Instances dump their config objects into this var
-     */
-    private static Properties latestConfig = null;
-
-    /**
-     * If not null this represents the latest configuration values for instances of this class and may have a sweeper
-     * cache sweep delay specified to overwrite the default.
-     */
-    private static Properties LATEST_CONFIG = null;
 
     /**
      * Loads the cache sweeper thread for removing expired holders.
@@ -215,7 +204,6 @@ public class OpenAMAuthHandler implements AccessRequestHandler {
     public void init(Properties config) {
         realm = getConfigProperty(REALM, config, true);
         authChain = getConfigProperty(AUTH_CHAIN, config, true);
-        OpenAMAuthHandler.latestConfig = config; // lets sweeper periodically look to see if its sweep time changed
     }
 
     /**
@@ -240,12 +228,13 @@ public class OpenAMAuthHandler implements AccessRequestHandler {
      * back to them in a previously started authentication process. The number of challenge responses that are sent
      * and their corresponding replies is dependent upon the number of modules in the chain and the number of callback
      * fields in each set of callbacks. A set of callbacks represents one grouping of data needed by a module to
-     * complete its next step in the authentication process that it implements and this grouping in a web environment
+     * complete its next step in the authentication process that it implements. This grouping in a web environment
      * constitutes a single page into which a number of fields can receive data. However, to gather additional feedback
-     * from a user the redius protocol only supports a challenge response with a text message and state and radius
+     * from a user the radius protocol only supports a challenge response with a text message and state and radius
      * clients typically present that message and a single text input field with a label like, "Answer", and submit
-     * and cancel buttons. This means that for some callback groupings we may need to return multiple challenge responses
-     * before we can submit the callback's user response values back to the module to take the next step in authentication.
+     * and cancel buttons. This means that we only get a single answer per radius challenge response. Therefore, for
+     * some callback groupings we will need to return multiple challenge responses before we can submit the callback
+     * set's user response values back to the module to take the next step in authentication.
      *
      * @param request
      * @param respHandler
