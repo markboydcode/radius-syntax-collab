@@ -67,6 +67,23 @@ public class RadiusRequestHandler implements Runnable {
 
             // log packet if client handlerConfig indicates
             if (reqCtx.clientConfig.logPackets) {
+                /*
+                Code for forcing userpassword field to decrypt the password and in conjuntion with commented out version
+                of toStringImpl in that class causing the password to be logged in the clear within the packet traffic
+                when debugging encryption issue that is now resolved. This code should remain commented out when
+                running in a production environment.
+                 */
+                /*
+                AttributeSet atts = request.getAttributeSet();
+                for (int i = 0; i < atts.size(); i++) {
+                    Attribute a = atts.getAttributeAt(i);
+
+                    if (a.getType() == AttributeType.USER_PASSWORD.getTypeCode()) {
+                        UserPasswordAttribute upa = (UserPasswordAttribute) a;
+                        upa.extractPassword(request.getAuthenticator(), reqCtx.clientConfig.secret);
+                    }
+                }
+                */
                 reqCtx.logPacketContent(request, "\nPacket from " + getClientName() + ":");
             }
 

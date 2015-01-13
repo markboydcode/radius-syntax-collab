@@ -170,8 +170,19 @@ public class UserPasswordAttribute extends Attribute
                 break;
             }
         }
-        return new String(clearText, 0, i);
+        _password = new String(clearText, 0, i);
+        return _password;
     }
+
+    /**
+     * Version of toStringImpl() to be used in concert with commented code in RadiusRequestHandler for logging
+     * incoming passwords on the server when there were problems with the decryption algorithm.
+     *
+     * @return
+     */
+//    public String toStringImpl() {
+//        return _password; // don't dump password to logs
+//    }
 
     public String toStringImpl() {
         return "*******"; // don't dump password to logs
