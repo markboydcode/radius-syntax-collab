@@ -2,6 +2,7 @@ package com.sun.identity.authentication.modules.radius;
 
 import com.sun.identity.authentication.modules.radius.client.*;
 import com.sun.identity.authentication.modules.radius.server.RadiusRequestContext;
+import com.sun.identity.authentication.modules.radius.server.config.RadiusServiceStarter;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -58,6 +59,7 @@ public class ConsoleClient implements Runnable {
     }
 
     public static void main(String[] args) throws IOException {
+        RadiusServiceStarter.logModuleBuildVersion(); // force build version to show on command line
         File cfg = new File("./" + CONFIG_FILE);
 
         if (! cfg.exists() || ! cfg.isFile()) {

@@ -2,6 +2,8 @@ package com.sun.identity.authentication.modules.radius.server.config;
 
 import com.sun.identity.authentication.modules.radius.server.Listener;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
@@ -77,6 +79,36 @@ public class RadiusServiceStarter implements Runnable {
      */
     public static final RadiusServiceStarter getInstance() {
         return starter;
+    }
+
+    /**
+     * Loads and logs the build version of our module.
+     */
+    static {
+        RadiusServiceStarter.logModuleBuildVersion();
+    }
+
+    /**
+     * Loads and logs the build version of our module. Public so ConsoleClient can also call.
+     */
+    public static final void logModuleBuildVersion() {
+        try {
+            InputStream is = RadiusServiceStarter.class.getResourceAsStream("/META-INF/openam-radius-version.txt");
+            if (is != null) {
+                int bytesRead = 0;
+
+                byte[] bytes =  new byte[256];
+                try {
+                    bytesRead = is.read(bytes);
+                    cLog.log(Level.INFO, "Loaded " + new String(bytes, 0, bytesRead));
+                } catch (IOException e) {
+                    cLog.log(Level.WARNING, "----> Unable to load openam-auth-smsotp module's version information.", e);
+                }
+            }
+        }
+        catch(Throwable t) {
+            cLog.log(Level.SEVERE, "----> Unable to load openam-auth-smsotp module's version information.", t);
+        }
     }
 
 
