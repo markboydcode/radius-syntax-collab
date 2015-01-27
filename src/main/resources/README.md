@@ -22,7 +22,7 @@ out in the content below to make it more clear:
 
     27-Jan-2015 09:33:18.604 INFO [RADIUS-RadiusServiceStarter] <snip/> RADIUS Config Changed. Loading...
     27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] <snip/> --- Loaded Config ---
-    [RadiusServiceConfig YES 1812 P( 1, 10, 10, 10), C( /127.0.0.1=local console client, letmein, true, <snip/>.OpenAMAuthHandler, {realm=/, chain=ldapserviceAndSmsotp})]
+    [RadiusServiceConfig YES 1812 P( 1, 10, 10, 10), C( 127.0.0.1=local console client, letmein, true, <snip/>.OpenAMAuthHandler, {realm=/, chain=ldapserviceAndSmsotp})]
 
     27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] <snip/> RADIUS service enabled. Starting Listener.
     27-Jan-2015 09:33:18.606 INFO [RADIUS-1812-Listener] <snip/> RADIUS Listener is Active.
@@ -32,14 +32,18 @@ out in the content below to make it more clear:
     Thread Keep-alive : 10 sec
     Request Queue     : 10
 
-If any RADIUS requests are received before any clients are configured or if the configured clients don't match the IP
+Note that the logging also dumps in very concise form each clien't configuration. And not in this case that the IP
+address for the single defined client is ___127.0.0.1__. If any RADIUS requests are received before any clients are
+configured or if the configured clients don't match the IP
 address of the incoming packets the RADIUS server will log the attempt and silently drop to packet as specified in the RFC:
 
     27-Jan-2015 09:45:25.004 WARNING [RADIUS-1812-Listener] <snip/>
     No Defined RADIUS Client matches IP address /127.0.0.1. Dropping request.
 
 This log message is very useful in that it specifies the exact value of the client's IP address that must be specified
-in the client configuration page for packets from that client to be accepted for authentication.
+in the client configuration page for packets from that client to be accepted for authentication. Once the IP address for
+the defined client is changed to __/127.0.0.1__ the packets are now accepted and authentication against modules in the
+specified chain __ldapserviceAndSmsotp__ now begins.
 
 # Questions?
 
