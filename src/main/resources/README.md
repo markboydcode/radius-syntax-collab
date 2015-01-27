@@ -17,7 +17,8 @@ the Global sub-tab, and noting the inclusion of a new __RADIUS Server__ in the _
 item and you can now define RADIUS Clients, set the port on which to listen for requests, enable the RADIUS server, and
 press the Save button.
 
-You'll immediately see log entries in catalina.out that show the RADIUS server starting up:
+You'll immediately see log entries in catalina.out that show the RADIUS server starting up. Some parts have been snipped
+out in the content below to make it more clear:
 
     27-Jan-2015 09:33:18.604 INFO [RADIUS-RadiusServiceStarter] <snip/> RADIUS Config Changed. Loading...
     27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] <snip/> --- Loaded Config ---
