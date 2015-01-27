@@ -19,12 +19,12 @@ press the Save button.
 
 You'll immediately see log entries in catalina.out that show the RADIUS server starting up:
 
-    27-Jan-2015 09:33:18.604 INFO [RADIUS-RadiusServiceStarter] <snip/> __RADIUS Config Changed. Loading...__
+    27-Jan-2015 09:33:18.604 INFO [RADIUS-RadiusServiceStarter] <snip/> RADIUS Config Changed. Loading...
     27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] <snip/> --- Loaded Config ---
     [RadiusServiceConfig YES 1812 P( 1, 10, 10, 10), C( /127.0.0.1=local console client, letmein, true, <snip/>.OpenAMAuthHandler, {realm=/, chain=ldapserviceAndSmsotp})]
 
-    27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] <snip/> RADIUS service enabled. __Starting Listener.__
-    27-Jan-2015 09:33:18.606 INFO [RADIUS-1812-Listener] <snip/> __RADIUS Listener is Active.__
+    27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] <snip/> RADIUS service enabled. Starting Listener.
+    27-Jan-2015 09:33:18.606 INFO [RADIUS-1812-Listener] <snip/> RADIUS Listener is Active.
     Port              : 1812
     Threads Core      : 1
     Threads Max       : 10
