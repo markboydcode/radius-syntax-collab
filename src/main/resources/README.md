@@ -32,6 +32,14 @@ out in the content below to make it more clear:
     Thread Keep-alive : 10 sec
     Request Queue     : 10
 
+If any RADIUS requests are received before any clients are configured or if the configured clients don't match the IP
+address of the incoming packets the RADIUS server will log the attempt and silently drop to packet as specified in the RFC:
+
+    27-Jan-2015 09:45:25.004 WARNING [RADIUS-1812-Listener] <snip/>
+    No Defined RADIUS Client matches IP address /127.0.0.1. Dropping request.
+
+This log message is very useful in that it specifies the exact value of the client's IP address that must be specified
+in the client configuration page for packets from that client to be accepted for authentication.
 
 # Questions?
 
