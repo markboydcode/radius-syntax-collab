@@ -2,18 +2,10 @@
 
 The directory includes files for adding configuration constructs to OpenAM's console for configuring the port on which
 to listen for RADIUS Access-Requests, enabling listening, and defining the set of allowed clients from which we will 
-accept requests. To expose these items in the UI the following steps are taken assuming that I am building this
-module outside of the product as a whole and adding it into an already deployed instance of openAM rather than having
-the module build from scratch as part of building openAM itself. For that case we'll have to add documentation
-when we get to that point.  
+accept requests. The current build embeds the radius jar into the WAR so radius runtime artifacts are readily availble
+to OpenAM. However, the following step must be taken to add the configuration constructs into the console.
 
-* Build the jar and add it into the deployed webapp-root/WEB-INF/lib directory removing the existing openam-auth-radius
-jar. This will get our properties file where it needs to be for the console to load its labels and will make available the 
-DefaultClientSecretGenerated referenced in the service's descriptor file.
-
-* Restart tomcat so that it sees the new jar.
-
-* Register our service to show in the console by Signing in as amadmin and accessing /openam/ssoadm.jsp or suitable path
+* Register the service descriptor file __amRadiusServer.xml__ by Signing in as amadmin and accessing /openam/ssoadm.jsp or suitable path
 for your installation. If the jsp isn't available, activate it by authenitcating
 to openAM as an administrator, proceeding to Configuration tab, Servers and Sites sub-tab, selecting server name,
 selecting the Advanced tab, pressing the Add button, and creating a property of __ssoadm.disabled = false__. Once
@@ -22,8 +14,22 @@ press submit. Thereafter, if you ever need to adjust use the __update-svc__ comm
 
 Registering the service to show in the console is instantaneous. View the constructs by going to the Configuration tab,
 the Global sub-tab, and noting the inclusion of a new __RADIUS Server__ in the __Global Properties__ table. Select that
-item and you can now define RADIUS Clients, set the port on which to listen for requests, and enable the RADIUS server.
+item and you can now define RADIUS Clients, set the port on which to listen for requests, enable the RADIUS server, and
+press the Save button.
 
+You'll immediately see log entries in catalina.out that show the RADIUS server starting up:
+
+    27-Jan-2015 09:33:18.604 INFO [RADIUS-RadiusServiceStarter] com.sun.identity.authentication.modules.radius.server.config.RadiusServiceStarter.run RADIUS Config Changed. Loading...
+    27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] com.sun.identity.authentication.modules.radius.server.config.RadiusServiceStarter.run --- Loaded Config ---
+    [RadiusServiceConfig YES 1812 P( 1, 10, 10, 10), C( /127.0.0.1=local console client, letmein, true, com.sun.identity.authentication.modules.radius.server.spi.handlers.OpenAMAuthHandler, {realm=/, chain=ldapserviceAndSmsotp})]
+
+    27-Jan-2015 09:33:18.605 INFO [RADIUS-RadiusServiceStarter] com.sun.identity.authentication.modules.radius.server.Listener.<init> RADIUS service enabled. Starting Listener.
+    27-Jan-2015 09:33:18.606 INFO [RADIUS-1812-Listener] null.null RADIUS Listener is Active.
+    Port              : 1812
+    Threads Core      : 1
+    Threads Max       : 10
+    Thread Keep-alive : 10 sec
+    Request Queue     : 10
 
 # Questions?
 
