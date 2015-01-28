@@ -1,6 +1,5 @@
 package com.sun.identity.authentication.modules.radius.server.poc;
 
-import com.toopher.ToopherAPI;
 
 import java.nio.channels.DatagramChannel;
 import java.text.DecimalFormat;
@@ -11,10 +10,7 @@ import java.text.DecimalFormat;
  */
 public class Context {
 
-    /**
-     * The handle to the toopher REST api.
-     */
-    public ToopherAPI toopherApi;
+
 
     /**
      * Formatter for elapsed times in miliseconds

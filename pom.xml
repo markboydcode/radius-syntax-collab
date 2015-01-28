@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.lds.ics.openAM</groupId>
         <artifactId>openAMAuthnModuleParentPom</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <!-- Component Definition -->
@@ -22,13 +22,8 @@
         and require registering spring dispatcher front controller servlet -->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
@@ -42,8 +37,6 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
-
-
         <dependency>
             <groupId>org.forgerock.openam</groupId>
             <artifactId>openam-core</artifactId>
@@ -52,57 +45,6 @@
             <groupId>org.forgerock.openam</groupId>
             <artifactId>openam-shared</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-
-        <!-- for oauth 1.0a signing of http client requests for toopher  -->
-        <dependency>
-            <groupId>oauth.signpost</groupId>
-            <artifactId>signpost-core</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>oauth.signpost</groupId>
-            <artifactId>signpost-commonshttp4</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- json parsing for toopher and twilio responses -->
-
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20140107</version>
-        </dependency>
-
-        <!-- the following dependency is unmanaged and held in local repo directory -->
-        <dependency>
-            <groupId>com.toopher</groupId>
-            <artifactId>toopher-java</artifactId>
-            <version>1.1</version>
-        </dependency>
-
-        <!--
-        The following two dependencies are used for parsing the json response object from lds account rest service.
-        -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
