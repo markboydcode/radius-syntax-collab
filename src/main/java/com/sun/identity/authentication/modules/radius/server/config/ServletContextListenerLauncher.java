@@ -1,9 +1,8 @@
 package com.sun.identity.authentication.modules.radius.server.config;
 
-import com.sun.identity.log.Level;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -41,5 +40,6 @@ public class ServletContextListenerLauncher implements ServletContextListener {
         cLog.log(Level.INFO, "---> " + this.getClass().getSimpleName() + " stopping "
                 + RadiusServiceStarter.class.getSimpleName());
         RadiusServiceStarter.getInstance().shutdown();
+        cLog.log(Level.INFO, "RADIUS server context listener destroyed");
     }
 }
