@@ -19,9 +19,11 @@ public class Constants {
     public static final String RADIUS_SERVICE_NAME = "RadiusServerService";
 
     /**
-     * The name of the is alive jsp file of openam.
+     * The classpath based path to the file that defines the configuration pieces in openAM's admin console for the
+     * RADIUS server functionality.
      */
-    public static final String IS_ALIVE_JSP = "isAlive.jsp";
+    public static final String RADIUS_SERVICE_CFG_FILE = RADIUS_SERVICE_NAME + ".xml";
+
 
     /**
      * Name of the global radius service attribute whose value indicates if RADIUS server features should be turned on

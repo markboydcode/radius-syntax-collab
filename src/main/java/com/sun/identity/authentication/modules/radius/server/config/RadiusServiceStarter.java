@@ -1,10 +1,17 @@
 package com.sun.identity.authentication.modules.radius.server.config;
 
+import com.iplanet.sso.SSOToken;
 import com.sun.identity.authentication.modules.radius.server.Listener;
+import com.sun.identity.security.AdminTokenAction;
+import com.sun.identity.sm.ServiceConfigManager;
+import com.sun.identity.sm.ServiceManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.security.AccessController;
 import java.text.MessageFormat;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -175,6 +182,10 @@ public class RadiusServiceStarter implements Runnable {
             this.coordinatingThread = null;
             return;
         }
+        // make sure our service descriptor is loaded into openam before attempting to load that configuration
+        ensureDescriptorLoaded(Constants.RADIUS_SERVICE_NAME, Constants.RADIUS_SERVICE_CFG_FILE);
+
+        // kick off config loading and registration of change listener
         loader = new ConfigLoader();
         String changeMsg = null;
 
@@ -235,6 +246,95 @@ public class RadiusServiceStarter implements Runnable {
         loader.notifyHandlerShutdownListeners();
         cLog.log(Level.INFO, Thread.currentThread().getName() + " exited.");
         this.coordinatingThread = null;
+    }
+
+    /**
+     * Tests whether a config service's descriptor file has been loaded into openam thus making that config
+     * available and loading it if it hasn't.
+     * @param serviceName the name of the config service registered via the service descriptor file
+     * @param cfgFile the classpath based path to the service descriptor file
+     */
+    private void ensureDescriptorLoaded(String serviceName, String cfgFile) {
+        // get the admin access token for instantiating the ServiceManager and ServiceConfigManager instances
+        SSOToken admTk = AccessController.doPrivileged(
+                AdminTokenAction.getInstance());
+
+        // get ServiceManager to see the list of all registered services and see if ours is in there
+        ServiceManager sm = null;
+        try {
+            sm = new ServiceManager(admTk);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        boolean serviceExists = false;
+        Set names = null;
+        try {
+            names = sm.getServiceNames();
+        } catch (Exception e) {
+            cLog.log(Level.SEVERE, "Unable to obtain service names from ServiceManager to determine if "
+                + serviceName + " is already registered or needs its service descriptor file "
+                    + cfgFile + " loaded. Assuming that it already loaded.", e);
+            return;
+        }
+        for(Object o : names) {
+            String name = (String) o;
+            if (serviceName.equals(name)) {
+                serviceExists = true;
+            }
+        }
+
+        // so ours isn't in there. Lets go register it.
+        if (! serviceExists) {
+            cLog.log(Level.INFO, serviceName + " not found. Loading...");
+            ServiceConfigManager mgr = null;
+            try {
+                mgr = new ServiceConfigManager(serviceName, admTk);
+            } catch (Exception e) {
+                cLog.log(Level.SEVERE, "Unable to obtain ServiceConfigManager to load " + cfgFile
+                        + ". Not loading.", e);
+                return;
+            }
+            URL url = this.getClass().getClassLoader().getResource(cfgFile);
+
+            if (url == null) {
+                cLog.log(Level.SEVERE, "Unable to locate classpath resource '" + cfgFile
+                        + "'. Must be loaded before the " + serviceName + " will be available in the admin console.");
+                return;
+            }
+            cLog.log(Level.INFO, "Service Descriptor file for " + serviceName + " found at: " + url.toString());
+
+            InputStream is = null;
+            try {
+                is = url.openStream();
+            } catch (Exception e) {
+                cLog.log(Level.SEVERE, "Unable to open resource " + url.toString()
+                        + ". Must be loaded before the " + serviceName + " will be available in the admin console.", e);
+                return;
+            }
+            try {
+                sm.registerServices(is);
+            }
+            catch(Exception e) {
+                cLog.log(Level.SEVERE, "Unable to load " + cfgFile + " file. Must be loaded before the "
+                        + serviceName + " will be available in the admin console.", e);
+                return;
+            }
+            finally {
+                try {
+                    is.close();
+                }
+                catch(Exception e) {
+                    // ignore
+                }
+            }
+            // wait one second for service cache update
+            try {
+                Thread.sleep(1000);
+            }
+            catch(InterruptedException e) {
+                // ignore but move on since we'll exit out pretty quickly
+            }
+        }
     }
 
     /**
