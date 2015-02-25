@@ -4,6 +4,7 @@ import com.sun.identity.authentication.modules.radius.client.AccessAccept;
 import com.sun.identity.authentication.modules.radius.client.AccessRequest;
 import com.sun.identity.authentication.modules.radius.server.RadiusResponseHandler;
 import com.sun.identity.authentication.modules.radius.server.spi.AccessRequestHandler;
+import com.sun.identity.authentication.modules.radius.server.spi.ShutdownListener;
 
 import java.util.Properties;
 

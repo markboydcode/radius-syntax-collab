@@ -2,7 +2,6 @@ package com.sun.identity.authentication.modules.radius.server.spi;
 
 import com.sun.identity.authentication.modules.radius.client.AccessRequest;
 import com.sun.identity.authentication.modules.radius.server.RadiusResponseHandler;
-import com.sun.identity.authentication.modules.radius.server.spi.handlers.ShutdownListener;
 
 import java.util.Properties;
 

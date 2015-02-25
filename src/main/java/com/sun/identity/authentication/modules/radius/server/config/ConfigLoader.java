@@ -4,7 +4,7 @@ package com.sun.identity.authentication.modules.radius.server.config;
 
 import com.iplanet.sso.SSOToken;
 import com.sun.identity.authentication.modules.radius.server.spi.AccessRequestHandler;
-import com.sun.identity.authentication.modules.radius.server.spi.handlers.ShutdownListener;
+import com.sun.identity.authentication.modules.radius.server.spi.ShutdownListener;
 import com.sun.identity.security.AdminTokenAction;
 import com.sun.identity.sm.ServiceConfig;
 import com.sun.identity.sm.ServiceConfigManager;

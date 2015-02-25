@@ -1,4 +1,4 @@
-package com.sun.identity.authentication.modules.radius.server.spi.handlers;
+package com.sun.identity.authentication.modules.radius.server.spi;
 
 /**
  * An optional object handed back from an implementation of AccessRequestHandler if that implementation desires to be
