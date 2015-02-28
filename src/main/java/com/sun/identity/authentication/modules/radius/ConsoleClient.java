@@ -59,7 +59,7 @@ public class ConsoleClient implements Runnable {
     }
 
     public static void main(String[] args) throws IOException {
-        RadiusServiceStarter.logModuleBuildVersion(); // force build version to show on command line
+        RadiusServiceStarter.getInstance(); // just references the starter to force build version to show on command line
         File cfg = new File("./" + CONFIG_FILE);
 
         if (! cfg.exists() || ! cfg.isFile()) {
