@@ -30,8 +30,14 @@ import com.sun.identity.authentication.modules.radius.Utils;
  */
 public class TestPacketFactory {
 
+    /**
+     * Test to ensure conformity with <a href="https://tools.ietf.org/html/rfc2865#section-7.1">IETF RFC 2865 section
+     * 7.1</a>
+     *
+     * @throws UnknownHostException
+     */
     @Test
-    public void testRfc2865_7_1_example() throws UnknownHostException {
+    public void testRfc2865Sec7dot1Example() throws UnknownHostException {
         String hex = "01 00 00 38 0f 40 3f 94 73 97 80 57 bd 83 d5 cb"
                 + "98 f4 22 7a 01 06 6e 65 6d 6f 02 12 0d be 70 8d" + "93 d4 13 ce 31 96 e4 3f 78 2a 0a ee 04 06 c0 a8"
                 + "01 10 05 06 00 00 00 03";
@@ -95,8 +101,11 @@ public class TestPacketFactory {
         System.out.println();
     }
 
+    /**
+     * Test username attribute reading
+     */
     @Test
-    private void test_UserName_Att() {
+    private void testUserNameAtt() {
         String hex = "01 06 6e 65 6d 6f";
         ByteBuffer bfr = Utils.toBuffer(hex);
         Attribute att = PacketFactory.nextAttribute(bfr);
