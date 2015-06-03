@@ -1,7 +1,19 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server;
-
-import com.sun.identity.authentication.modules.radius.client.*;
-import com.sun.identity.authentication.modules.radius.server.config.ClientConfig;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,11 +26,20 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.identity.authentication.modules.radius.client.AccessAccept;
+import com.sun.identity.authentication.modules.radius.client.AccessChallenge;
+import com.sun.identity.authentication.modules.radius.client.AccessReject;
+import com.sun.identity.authentication.modules.radius.client.AccessRequest;
+import com.sun.identity.authentication.modules.radius.client.Attribute;
+import com.sun.identity.authentication.modules.radius.client.AttributeSet;
+import com.sun.identity.authentication.modules.radius.client.Authenticator;
+import com.sun.identity.authentication.modules.radius.client.Packet;
+import com.sun.identity.authentication.modules.radius.client.ResponseAuthenticator;
+import com.sun.identity.authentication.modules.radius.server.config.ClientConfig;
+
 /**
  * Holds context information about a received radius request being processed and provides the means for a client's
- * handler to send a response.
- *
- * Created by markboyd on 11/24/14.
+ * handler to send a response. Created by markboyd on 11/24/14.
  */
 public class RadiusRequestContext {
     private static final Logger cLog = Logger.getLogger(RadiusRequestContext.class.getName());
@@ -69,6 +90,7 @@ public class RadiusRequestContext {
 
     /**
      * Log packet's attributes in raw hex and read-able chars (where possible)
+     * 
      * @param pkt
      */
     public void logPacketContent(Packet pkt, String preamble) {
@@ -88,22 +110,18 @@ public class RadiusRequestContext {
         Class clazz = pkt.getClass();
         if (clazz == AccessRequest.class) {
             packetType = "ACCESS_REQUEST";
-        }
-        else if (clazz == AccessReject.class) {
+        } else if (clazz == AccessReject.class) {
             packetType = "ACCESS_REJECT";
-        }
-        else if (clazz == AccessAccept.class) {
+        } else if (clazz == AccessAccept.class) {
             packetType = "ACCESS_ACCEPT";
-        }
-        else if (clazz == AccessChallenge.class) {
+        } else if (clazz == AccessChallenge.class) {
             packetType = "ACCESS_CHALLENGE";
-        }
-        else {
+        } else {
             packetType = pkt.getClass().getSimpleName();
         }
         pw.println("  " + packetType + " [" + pkt.getIdentifier() + "]");
         AttributeSet atts = pkt.getAttributeSet();
-        for(int i=0; i<atts.size(); i++) {
+        for (int i = 0; i < atts.size(); i++) {
             Attribute a = atts.getAttributeAt(i);
             pw.println("    - " + a);
         }
@@ -112,22 +130,22 @@ public class RadiusRequestContext {
     }
 
     /**
-     * Takes the passed-in packet, injects the ID of the request and a response authenticator and sends it to the
-     * source of the request.
+     * Takes the passed-in packet, injects the ID of the request and a response authenticator and sends it to the source
+     * of the request.
      *
      * @param response
      */
     public void send(Packet response) {
         if (sendWasCalled) {
-            cLog.log(Level.WARNING, "Handler class '" + clientConfig.clazz.getSimpleName()
-                    + "' declared for client " + clientConfig.name + " called send more than once.");
+            cLog.log(Level.WARNING, "Handler class '" + clientConfig.clazz.getSimpleName() + "' declared for client "
+                    + clientConfig.name + " called send more than once.");
             return;
         }
         sendWasCalled = true;
 
         if (response == null) {
-            cLog.log(Level.SEVERE, "Handler class '" + clientConfig.clazz.getSimpleName()
-                    + "' declared for client " + clientConfig.name + " attempted to send a null response. Rejecting access.");
+            cLog.log(Level.SEVERE, "Handler class '" + clientConfig.clazz.getSimpleName() + "' declared for client "
+                    + clientConfig.name + " attempted to send a null response. Rejecting access.");
             send(new AccessReject());
             return;
         }
@@ -159,7 +177,8 @@ public class RadiusRequestContext {
 
     /**
      * Crafts the response authenticator as per the Response Authenticator paragraph of section 3 of rfc 2865 and
-     * injects into the response packet thus defining the authenticity and integrity of this response relative to its request.
+     * injects into the response packet thus defining the authenticity and integrity of this response relative to its
+     * request.
      *
      * @param response
      */

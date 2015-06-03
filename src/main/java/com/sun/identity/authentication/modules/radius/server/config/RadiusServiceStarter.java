@@ -1,10 +1,19 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server.config;
-
-import com.iplanet.sso.SSOToken;
-import com.sun.identity.authentication.modules.radius.server.Listener;
-import com.sun.identity.security.AdminTokenAction;
-import com.sun.identity.sm.ServiceConfigManager;
-import com.sun.identity.sm.ServiceManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +24,12 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.iplanet.sso.SSOToken;
+import com.sun.identity.authentication.modules.radius.server.Listener;
+import com.sun.identity.security.AdminTokenAction;
+import com.sun.identity.sm.ServiceConfigManager;
+import com.sun.identity.sm.ServiceManager;
 
 /**
  * This class is the startup point for the RADIUS server feature in OpenAM. TODO - By including its full package path in
@@ -52,10 +67,10 @@ public class RadiusServiceStarter implements Runnable {
     private ArrayBlockingQueue<String> configChangedQueue = new ArrayBlockingQueue<String>(2);
 
     /**
-     * The current handlerConfig loaded from openAM's admin console constructs. When handlerConfig changes are detected we reload and
-     * compare the new to the old and adjust accordingly. The defaults have RADIUS authentication disabled, and no
-     * thread pool handlerConfig which is ok since these won't be used due to injecting the offer into the configChangedQueue
-     * causes immediate loading from openAM persisted values.
+     * The current handlerConfig loaded from openAM's admin console constructs. When handlerConfig changes are detected
+     * we reload and compare the new to the old and adjust accordingly. The defaults have RADIUS authentication
+     * disabled, and no thread pool handlerConfig which is ok since these won't be used due to injecting the offer into
+     * the configChangedQueue causes immediate loading from openAM persisted values.
      */
     private RadiusServiceConfig currentCfg = new RadiusServiceConfig(false, Constants.RADIUS_AUTHN_PORT, null);
 
@@ -104,7 +119,7 @@ public class RadiusServiceStarter implements Runnable {
             if (is != null) {
                 int bytesRead = 0;
 
-                byte[] bytes =  new byte[256];
+                byte[] bytes = new byte[256];
                 try {
                     bytesRead = is.read(bytes);
                     cLog.log(Level.INFO, "Loaded " + new String(bytes, 0, bytesRead));
@@ -112,12 +127,10 @@ public class RadiusServiceStarter implements Runnable {
                     cLog.log(Level.WARNING, "----> Unable to load openam-auth-smsotp module's version information.", e);
                 }
             }
-        }
-        catch(Throwable t) {
+        } catch (Throwable t) {
             cLog.log(Level.SEVERE, "----> Unable to load openam-auth-smsotp module's version information.", t);
         }
     }
-
 
     /**
      * Creates the instance of the starter.
@@ -147,10 +160,9 @@ public class RadiusServiceStarter implements Runnable {
     }
 
     /**
-     * Launches the Radius Server. May be called more than once if more than one
-     * trigger is registered such as a SpringFramework servlet and the ServletContextListener. Only the first
-     * call will start the process. All others are ignored.
-     *
+     * Launches the Radius Server. May be called more than once if more than one trigger is registered such as a
+     * SpringFramework servlet and the ServletContextListener. Only the first call will start the process. All others
+     * are ignored.
      */
     public synchronized void startUp() {
         if (coordinatingThread == null) {
@@ -163,10 +175,9 @@ public class RadiusServiceStarter implements Runnable {
             t.setDaemon(true);
             t.start();
             coordinatingThread = t;
-        }
-        else {
-            cLog.log(Level.WARNING, this.getClass().getSimpleName() + ".setServletConfig() called again. Service " +
-                    "already started. Ignoring.");
+        } else {
+            cLog.log(Level.WARNING, this.getClass().getSimpleName() + ".setServletConfig() called again. Service "
+                    + "already started. Ignoring.");
         }
     }
 
@@ -211,23 +222,19 @@ public class RadiusServiceStarter implements Runnable {
                 if (listener == null) { // at startup or after service has been turned off
                     if (cfg.isEnabled()) {
                         listener = new Listener(cfg);
-                    }
-                    else {
+                    } else {
                         cLog.log(Level.INFO, "RADIUS service disabled.");
                     }
-                }
-                else { // so we already have a listener running
+                } else { // so we already have a listener running
                     if (onlyClientSetChanged(cfg, currentCfg)) {
                         listener.updateConfig(cfg);
-                    }
-                    else {
+                    } else {
                         // all other changes (port, thread pool values, enabledState) require restart of listener
                         listener.terminate();
                         listener = null;
                         if (cfg.isEnabled()) {
                             listener = new Listener(cfg);
-                        }
-                        else {
+                        } else {
                             cLog.log(Level.INFO, "RADIUS service NOT enabled.");
                         }
                     }
@@ -249,15 +256,17 @@ public class RadiusServiceStarter implements Runnable {
     }
 
     /**
-     * Tests whether a config service's descriptor file has been loaded into openam thus making that config
-     * available and loading it if it hasn't.
-     * @param serviceName the name of the config service registered via the service descriptor file
-     * @param cfgFile the classpath based path to the service descriptor file
+     * Tests whether a config service's descriptor file has been loaded into openam thus making that config available
+     * and loading it if it hasn't.
+     * 
+     * @param serviceName
+     *            the name of the config service registered via the service descriptor file
+     * @param cfgFile
+     *            the classpath based path to the service descriptor file
      */
     private void ensureDescriptorLoaded(String serviceName, String cfgFile) {
         // get the admin access token for instantiating the ServiceManager and ServiceConfigManager instances
-        SSOToken admTk = AccessController.doPrivileged(
-                AdminTokenAction.getInstance());
+        SSOToken admTk = AccessController.doPrivileged(AdminTokenAction.getInstance());
 
         // get ServiceManager to see the list of all registered services and see if ours is in there
         ServiceManager sm = null;
@@ -271,12 +280,12 @@ public class RadiusServiceStarter implements Runnable {
         try {
             names = sm.getServiceNames();
         } catch (Exception e) {
-            cLog.log(Level.SEVERE, "Unable to obtain service names from ServiceManager to determine if "
-                + serviceName + " is already registered or needs its service descriptor file "
-                    + cfgFile + " loaded. Assuming that it already loaded.", e);
+            cLog.log(Level.SEVERE, "Unable to obtain service names from ServiceManager to determine if " + serviceName
+                    + " is already registered or needs its service descriptor file " + cfgFile
+                    + " loaded. Assuming that it already loaded.", e);
             return;
         }
-        for(Object o : names) {
+        for (Object o : names) {
             String name = (String) o;
             if (serviceName.equals(name)) {
                 serviceExists = true;
@@ -284,14 +293,13 @@ public class RadiusServiceStarter implements Runnable {
         }
 
         // so ours isn't in there. Lets go register it.
-        if (! serviceExists) {
+        if (!serviceExists) {
             cLog.log(Level.INFO, serviceName + " not found. Loading...");
             ServiceConfigManager mgr = null;
             try {
                 mgr = new ServiceConfigManager(serviceName, admTk);
             } catch (Exception e) {
-                cLog.log(Level.SEVERE, "Unable to obtain ServiceConfigManager to load " + cfgFile
-                        + ". Not loading.", e);
+                cLog.log(Level.SEVERE, "Unable to obtain ServiceConfigManager to load " + cfgFile + ". Not loading.", e);
                 return;
             }
             URL url = this.getClass().getClassLoader().getResource(cfgFile);
@@ -307,31 +315,27 @@ public class RadiusServiceStarter implements Runnable {
             try {
                 is = url.openStream();
             } catch (Exception e) {
-                cLog.log(Level.SEVERE, "Unable to open resource " + url.toString()
-                        + ". Must be loaded before the " + serviceName + " will be available in the admin console.", e);
+                cLog.log(Level.SEVERE, "Unable to open resource " + url.toString() + ". Must be loaded before the "
+                        + serviceName + " will be available in the admin console.", e);
                 return;
             }
             try {
                 sm.registerServices(is);
-            }
-            catch(Exception e) {
-                cLog.log(Level.SEVERE, "Unable to load " + cfgFile + " file. Must be loaded before the "
-                        + serviceName + " will be available in the admin console.", e);
+            } catch (Exception e) {
+                cLog.log(Level.SEVERE, "Unable to load " + cfgFile + " file. Must be loaded before the " + serviceName
+                        + " will be available in the admin console.", e);
                 return;
-            }
-            finally {
+            } finally {
                 try {
                     is.close();
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     // ignore
                 }
             }
             // wait one second for service cache update
             try {
                 Thread.sleep(1000);
-            }
-            catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 // ignore but move on since we'll exit out pretty quickly
             }
         }
@@ -347,6 +351,7 @@ public class RadiusServiceStarter implements Runnable {
     private boolean onlyClientSetChanged(RadiusServiceConfig cfg, RadiusServiceConfig currentCfg) {
 
         return cfg.getPort() == currentCfg.getPort() && cfg.isEnabled() == currentCfg.isEnabled()
-        && cfg.getThreadPoolConfig() != null && cfg.getThreadPoolConfig().equals(currentCfg.getThreadPoolConfig());
+                && cfg.getThreadPoolConfig() != null
+                && cfg.getThreadPoolConfig().equals(currentCfg.getThreadPoolConfig());
     }
 }

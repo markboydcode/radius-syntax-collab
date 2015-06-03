@@ -1,3 +1,18 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server.config;
 
 import java.io.PrintWriter;
@@ -7,9 +22,7 @@ import java.util.Map;
 
 /**
  * Holds the suite of configuration from the admin console for rapid determination of whether packets should be dropped
- * or accepted and processed.
- *
- * Created by markboyd on 11/11/14.
+ * or accepted and processed. Created by markboyd on 11/11/14.
  */
 public class RadiusServiceConfig {
     /**
@@ -21,7 +34,6 @@ public class RadiusServiceConfig {
      * The set of configured clients.
      */
     private Map<String, ClientConfig> clients = new HashMap<String, ClientConfig>();
-
 
     /**
      * Whether the port should be opened and we should be listening for incoming UDP packet requests. By default we set
@@ -46,7 +58,7 @@ public class RadiusServiceConfig {
         this.port = port;
         this.threadPoolConfig = poolCfg;
 
-        for(ClientConfig c : clientConfigs) {
+        for (ClientConfig c : clientConfigs) {
             this.clients.put(c.ipaddr, c);
         }
     }
@@ -73,6 +85,7 @@ public class RadiusServiceConfig {
     /**
      * Returns true if the RADIUS service should have an open UDP Datagram Channel listening for incoming packets.
      * Returns false if the RADIUS service should NOT be listening for and accepting packets.
+     * 
      * @return
      */
     public boolean isEnabled() {
@@ -93,31 +106,29 @@ public class RadiusServiceConfig {
     public String toString() {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-//        pw.println("[" + this.getClass().getSimpleName());
-//        pw.println(" Enabled : " + (isEnabled() ? "YES" : "NO"));
-//        pw.println(" Port    : " + getPort());
-//
-//        ThreadPoolCfg pc = getThreadPoolConfig();
-//        pw.println(" Thread-Pool");
-//        pw.println("  CoreThreads      : " + pc.coreThreads);
-//        pw.println("  MaxThreads       : " + pc.maxThreads);
-//        pw.println("  KeepAliveSeconds : " + pc.keepAliveSeconds);
-//        pw.println("  QueueSize        : " + pc.queueSize);
-//        pw.println(" Clients");
-//        for(Map.Entry<String, Client> ent : clients.entrySet()) {
-//            Client c = ent.getValue();
-//            pw.println("  " + c.ipaddr + " = " + c.name + " [" + c.secret + ", " + c.realm + c.authChain + "]");
-//        }
-//        pw.println("]");
+        // pw.println("[" + this.getClass().getSimpleName());
+        // pw.println(" Enabled : " + (isEnabled() ? "YES" : "NO"));
+        // pw.println(" Port    : " + getPort());
+        //
+        // ThreadPoolCfg pc = getThreadPoolConfig();
+        // pw.println(" Thread-Pool");
+        // pw.println("  CoreThreads      : " + pc.coreThreads);
+        // pw.println("  MaxThreads       : " + pc.maxThreads);
+        // pw.println("  KeepAliveSeconds : " + pc.keepAliveSeconds);
+        // pw.println("  QueueSize        : " + pc.queueSize);
+        // pw.println(" Clients");
+        // for(Map.Entry<String, Client> ent : clients.entrySet()) {
+        // Client c = ent.getValue();
+        // pw.println("  " + c.ipaddr + " = " + c.name + " [" + c.secret + ", " + c.realm + c.authChain + "]");
+        // }
+        // pw.println("]");
         ThreadPoolConfig pc = getThreadPoolConfig();
-        pw.print("[" + this.getClass().getSimpleName() + " " + (isEnabled() ? "YES" : "NO") +
-                " " + getPort() + " P( " + pc.coreThreads + ", " + pc.maxThreads +
-                ", " + pc.keepAliveSeconds + ", " + pc.queueSize + ")");
-        for(Map.Entry<String, ClientConfig> ent : clients.entrySet()) {
+        pw.print("[" + this.getClass().getSimpleName() + " " + (isEnabled() ? "YES" : "NO") + " " + getPort() + " P( "
+                + pc.coreThreads + ", " + pc.maxThreads + ", " + pc.keepAliveSeconds + ", " + pc.queueSize + ")");
+        for (Map.Entry<String, ClientConfig> ent : clients.entrySet()) {
             ClientConfig c = ent.getValue();
             pw.print(", C( " + c.ipaddr + "=" + c.name + ", " + c.secret + ", " + c.logPackets + ", "
-                    + (c.classIsValid ? c.clazz.getName() : "not-found: " + c.classname) + ", " +
-                    c.handlerConfig + ")");
+                    + (c.classIsValid ? c.clazz.getName() : "not-found: " + c.classname) + ", " + c.handlerConfig + ")");
         }
         pw.println("]");
         pw.flush();

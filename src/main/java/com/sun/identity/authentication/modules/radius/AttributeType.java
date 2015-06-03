@@ -1,58 +1,40 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius;
 
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Attribute types corresponding to attribute type codes defined in rfc 2865 and extension RFCs.
- *
- * Created by markboyd on 6/19/14.
+ * Attribute types corresponding to attribute type codes defined in rfc 2865 and extension RFCs. Created by markboyd on
+ * 6/19/14.
  */
 public enum AttributeType {
-    USER_NAME(1),
-    USER_PASSWORD(2),
-    CHAP_PASSWORD(3),
-    NAS_IP_ADDRESS(4), // see section 5.4 of rfc 2865
-    NAS_PORT(5),
-    SERVICE_TYPE(6),
-    FRAMED_PROTOCOL(7),
-    FRAMED_IP_ADDRESS(8),
-    FRAMED_IP_NETMASK(9),
-    FRAMED_ROUTING(10),
-    FILTER_ID(11),
-    FRAMED_MTU(12),
-    FRAMED_COMPRESSION(13),
-    LOGIN_IP_HOST(14),
-    LOGIN_SERVICE(15),
-    LOGIN_TCP_PORT(16),
+    USER_NAME(1), USER_PASSWORD(2), CHAP_PASSWORD(3), NAS_IP_ADDRESS(4), // see section 5.4 of rfc 2865
+    NAS_PORT(5), SERVICE_TYPE(6), FRAMED_PROTOCOL(7), FRAMED_IP_ADDRESS(8), FRAMED_IP_NETMASK(9), FRAMED_ROUTING(10), FILTER_ID(
+            11), FRAMED_MTU(12), FRAMED_COMPRESSION(13), LOGIN_IP_HOST(14), LOGIN_SERVICE(15), LOGIN_TCP_PORT(16),
     // 17 HAS NOT BEEN ASSIGNED
-    REPLY_MESSAGE(18),
-    CALLBACK_NUMBER(19),
-    CALLBACK_ID(20),
+    REPLY_MESSAGE(18), CALLBACK_NUMBER(19), CALLBACK_ID(20),
     // 21 HAS NOT BEEN ASSIGNED
-    FRAMED_ROUTE(22),
-    FRAMED_IPX_NETWORK(23),
-    STATE(24),
-    NAS_CLASS(25),
-    VENDOR_SPECIFIC(26),
-    SESSION_TIMEOUT(27),
-    IDLE_TIMEOUT(28),
-    TERMINATION_ACTION(29),
-    CALLER_STATION_ID(30),
-    CALLING_STATION_ID(31),
-    NAS_IDENTIFIER(32),
-    PROXY_STATE(33),
-    LOGIN_LAT_SERVICE(34),
-    LOGIN_LAT_NODE(35),
-    LOGIN_LAT_GROUP(36),
-    FRAMED_APPLETALK_LINK(37),
-    FRAMED_APPLETALK_NETWORK(38),
-    FRAMED_APPLETALK_ZONE(39),
+    FRAMED_ROUTE(22), FRAMED_IPX_NETWORK(23), STATE(24), NAS_CLASS(25), VENDOR_SPECIFIC(26), SESSION_TIMEOUT(27), IDLE_TIMEOUT(
+            28), TERMINATION_ACTION(29), CALLER_STATION_ID(30), CALLING_STATION_ID(31), NAS_IDENTIFIER(32), PROXY_STATE(
+            33), LOGIN_LAT_SERVICE(34), LOGIN_LAT_NODE(35), LOGIN_LAT_GROUP(36), FRAMED_APPLETALK_LINK(37), FRAMED_APPLETALK_NETWORK(
+            38), FRAMED_APPLETALK_ZONE(39),
     // 40-59 HAS NOT BEEN ASSIGNED
-    CHAP_CHALLENGE(60),
-    NAS_PORT_TYPE(61),
-    PORT_LIMIT(62),
-    LOGIN_LAT_PORT(63);
+    CHAP_CHALLENGE(60), NAS_PORT_TYPE(61), PORT_LIMIT(62), LOGIN_LAT_PORT(63);
 
     private static Map<Integer, AttributeType> atts;
 

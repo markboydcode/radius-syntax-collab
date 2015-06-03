@@ -1,14 +1,27 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server.poc;
 
 import com.sun.identity.authentication.modules.radius.State;
 
 /**
- * This class helps keep track of which state in the authentication process we are in and any parameters that get
- * passed via the RADIUS state attribute to the client and handed back to us. It also encapsulates how to generate
- * the attribute's value including parameters and then pull them back out of such value when it is passed back to us
- * from the client.
- *
- * Created by markboyd on 6/28/14.
+ * This class helps keep track of which state in the authentication process we are in and any parameters that get passed
+ * via the RADIUS state attribute to the client and handed back to us. It also encapsulates how to generate the
+ * attribute's value including parameters and then pull them back out of such value when it is passed back to us from
+ * the client. Created by markboyd on 6/28/14.
  */
 public class StateHolder {
 
@@ -27,13 +40,12 @@ public class StateHolder {
             String stateKey = radiusStateAttributeValue.substring(0, idx);
             this.state = State.valueOf(stateKey);
             this.property = radiusStateAttributeValue.substring(idx + 1);
-            System.out.println("   -- STATE received: " + radiusStateAttributeValue
-            + " --> " + this.state + " / " + this.property);
-        }
-        else {
+            System.out.println("   -- STATE received: " + radiusStateAttributeValue + " --> " + this.state + " / "
+                    + this.property);
+        } else {
             this.state = State.valueOf(radiusStateAttributeValue);
-            System.out.println("   -- STATE received: " + radiusStateAttributeValue
-                    + " --> " + this.state + " / " + this.property);
+            System.out.println("   -- STATE received: " + radiusStateAttributeValue + " --> " + this.state + " / "
+                    + this.property);
         }
     }
 

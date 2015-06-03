@@ -1,15 +1,29 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server.poc;
-
-import com.sun.identity.authentication.modules.radius.State;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.identity.authentication.modules.radius.State;
+
 /**
  * Represents a trigger-able transition between states and provides builder method to craft such transitions with their
- * triggers that can be evaluated via isTriggered() to determine if that transition should be taken.
- *
- * Created by markboyd on 6/28/14.
+ * triggers that can be evaluated via isTriggered() to determine if that transition should be taken. Created by markboyd
+ * on 6/28/14.
  */
 public class Transition {
     /**
@@ -27,8 +41,8 @@ public class Transition {
     }
 
     /**
-     * Utility class used only during construction of Transitions to force IDE's to present only the when() method
-     * after a Transition.to() method call.
+     * Utility class used only during construction of Transitions to force IDE's to present only the when() method after
+     * a Transition.to() method call.
      */
     public static class TriggerExpector {
 
@@ -56,8 +70,8 @@ public class Transition {
     }
 
     /**
-     * Ditto to after but these procs run after the transition has been made except that the order in which they are added is
-     * the order in which they fire.
+     * Ditto to after but these procs run after the transition has been made except that the order in which they are
+     * added is the order in which they fire.
      *
      * @param proc
      * @return
@@ -65,7 +79,6 @@ public class Transition {
     /**
      * Adds a processor that runs as part of transitioning to a new state. The order in which processors are added is
      * the order in which they fire.
-     *
      *
      * @param proc
      * @return
@@ -77,10 +90,11 @@ public class Transition {
 
     /**
      * Returns true if the configured trigger for this transition is triggered.
+     * 
      * @param req
      */
     public boolean isTriggered(RequestInfo req, Context ctx) {
-        for(Trigger t : triggers) {
+        for (Trigger t : triggers) {
             boolean isActive = t.isTriggered(req, ctx);
 
             if (isActive == false) {
@@ -105,8 +119,8 @@ public class Transition {
     }
 
     /**
-     *  Runs all processors in the beforeProcs group if any, moves to the next state, then runs all the processors in
-     *  the afterProcs group if any, and returns the next state.
+     * Runs all processors in the beforeProcs group if any, moves to the next state, then runs all the processors in the
+     * afterProcs group if any, and returns the next state.
      *
      * @return
      * @param req
@@ -114,7 +128,7 @@ public class Transition {
      * @param message
      */
     public void execute(RequestInfo req, Context serverData, String message) {
-        for(TransitionProcessor p : processors) {
+        for (TransitionProcessor p : processors) {
             p.process(req, serverData, message);
         }
     }

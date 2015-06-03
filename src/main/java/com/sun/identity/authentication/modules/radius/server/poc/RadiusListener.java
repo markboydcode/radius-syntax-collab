@@ -1,9 +1,19 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server.poc;
-
-import com.sun.identity.authentication.modules.radius.AttributeType;
-import com.sun.identity.authentication.modules.radius.PacketType;
-import com.sun.identity.authentication.modules.radius.State;
-import com.sun.identity.authentication.modules.radius.client.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,10 +24,18 @@ import java.nio.channels.DatagramChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.sun.identity.authentication.modules.radius.AttributeType;
+import com.sun.identity.authentication.modules.radius.PacketType;
+import com.sun.identity.authentication.modules.radius.State;
+import com.sun.identity.authentication.modules.radius.client.Attribute;
+import com.sun.identity.authentication.modules.radius.client.AttributeSet;
+import com.sun.identity.authentication.modules.radius.client.PacketFactory;
+import com.sun.identity.authentication.modules.radius.client.StateAttribute;
+import com.sun.identity.authentication.modules.radius.client.UserNameAttribute;
+import com.sun.identity.authentication.modules.radius.client.UserPasswordAttribute;
+
 /**
- * Listens for requests from RADIUS clients and returns corresponding responses.
- *
- * Created by markboyd on 6/18/14.
+ * Listens for requests from RADIUS clients and returns corresponding responses. Created by markboyd on 6/18/14.
  */
 public class RadiusListener {
 
@@ -56,17 +74,16 @@ public class RadiusListener {
     private Flow flow = null;
 
     /**
-     * Indicates any request should be mapped to the single defined client if true. this is only be used
-     * for testing and should be false in a production environment as well as support multiple clients.
+     * Indicates any request should be mapped to the single defined client if true. this is only be used for testing and
+     * should be false in a production environment as well as support multiple clients.
      */
     public static final boolean allowAnyClientIp = true;
     public static InetAddress clientIp = InetAddress.getLoopbackAddress(); // for testing from local calls
 
     public static String clientSecret = "radius";
 
-    //public static final String PAIRING_DEVICE = "submit-pairing-phrase";
-    //public static final String PENDING_DEVICE_RESPONSE = "awaiting-device-response";
-
+    // public static final String PAIRING_DEVICE = "submit-pairing-phrase";
+    // public static final String PENDING_DEVICE_RESPONSE = "awaiting-device-response";
 
     // private Map<String, String> passwords = new HashMap<String, String>();
 
@@ -81,25 +98,24 @@ public class RadiusListener {
         serverData.channel = DatagramChannel.open();
         if (authPort == -1) { // assign to any avialable port. typically for testing only.
             serverData.channel.bind(null);
-        }
-        else {
+        } else {
             serverData.channel.socket().bind(new InetSocketAddress(authPort));
         }
         System.out.println();
         System.out.println(getTimeStampAsString() + "RADIUS AuthN/Z Server Is Ready");
         System.out.println(getTimeStampAsString() + "Listening Port   : " + authPort);
         if (allowAnyClientIp) {
-            System.out.println(getTimeStampAsString() + "Defined Client   : Any - WARNING: lock this down in production!"); // + clientIp);
-        }
-        else {
+            System.out.println(getTimeStampAsString()
+                    + "Defined Client   : Any - WARNING: lock this down in production!"); // + clientIp);
+        } else {
             System.out.println(getTimeStampAsString() + "Defined Client   : " + clientIp);
         }
         System.out.println(getTimeStampAsString() + "Shared Secret    : " + clientSecret);
-        //System.out.println("Toopher Consumer : " + toopherConsumerName);
+        // System.out.println("Toopher Consumer : " + toopherConsumerName);
         System.out.println();
 
-        //passwords.put("alice", "alicepwd");
-        //passwords.put("sam", "sampwd");
+        // passwords.put("alice", "alicepwd");
+        // passwords.put("sam", "sampwd");
     }
 
     /**
@@ -144,28 +160,27 @@ public class RadiusListener {
             // parse into a packet object
             try {
                 req.pkt = PacketFactory.toPacket(bfr);
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println(getTimeStampAsString() + "Error in parsing received packet. Ignoring.");
                 e.printStackTrace();
                 continue;
             }
             req.start = start;
-            System.out.println(getTimeStampAsString() + "----> " + req.pkt.getType() + " - " + req.pkt.getIdentifier() + " from "
-                    + req.addr.getAddress().toString()
+            System.out.println(getTimeStampAsString() + "----> " + req.pkt.getType() + " - " + req.pkt.getIdentifier()
+                    + " from " + req.addr.getAddress().toString()
                     + (allowAnyClientIp ? " - WARNING: Allowing requests from any client." : ""));
             Send.dumpAttributesToStdOut(req.pkt);
 
             // verify client ip address
             if (!allowAnyClientIp) {
                 if (!req.addr.getAddress().equals(clientIp)) {
-                    System.out.println(getTimeStampAsString() + "Request IP Doesn't match registered client: " + clientIp + ". Ignoring.");
+                    System.out.println(getTimeStampAsString() + "Request IP Doesn't match registered client: "
+                            + clientIp + ". Ignoring.");
                     continue;
                 }
                 // set the secret of the client that is connecting (only one for now)
                 req.clientSecret = clientSecret;
-            }
-            else {
+            } else {
                 req.clientSecret = clientSecret;
             }
 
@@ -192,7 +207,7 @@ public class RadiusListener {
         // state only comes in via an access-challenge response from us
         req.stateHolder = new StateHolder(flow.getDefaultState());
 
-        for(int i=0; i<len; i++) {
+        for (int i = 0; i < len; i++) {
             Attribute a = atts.getAttributeAt(i);
             AttributeType t = AttributeType.getType(a.getType());
 
@@ -201,36 +216,35 @@ public class RadiusListener {
                 continue;
             }
 
-            switch(t) {
-                case USER_NAME:
-                    req.username = ((UserNameAttribute) a).getName();
-                    break;
-                case USER_PASSWORD:
-                    try {
-                        UserPasswordAttribute up = (UserPasswordAttribute) a;
-                        req.credential = ((UserPasswordAttribute)a).extractPassword(req.authctr, clientSecret);
-                    } catch (IOException e) {
-                        System.out.println(getTimeStampAsString() + "problem extracting password field from packet");
-                        e.printStackTrace();
-                    }
-                    break;
-                case STATE:
-                    req.stateHolder = new StateHolder(((StateAttribute) a).getString());
-                    break;
+            switch (t) {
+            case USER_NAME:
+                req.username = ((UserNameAttribute) a).getName();
+                break;
+            case USER_PASSWORD:
+                try {
+                    UserPasswordAttribute up = (UserPasswordAttribute) a;
+                    req.credential = ((UserPasswordAttribute) a).extractPassword(req.authctr, clientSecret);
+                } catch (IOException e) {
+                    System.out.println(getTimeStampAsString() + "problem extracting password field from packet");
+                    e.printStackTrace();
+                }
+                break;
+            case STATE:
+                req.stateHolder = new StateHolder(((StateAttribute) a).getString());
+                break;
             }
         }
     }
 
     /**
      * Listens for requests and sends responses implementing the following state machine. The values before the colons
-     * are the state included in an incoming request which is non-existent for the initial request and is the
-     * state in a challenge response that precipitated this incoming request.
-     *
+     * are the state included in an incoming request which is non-existent for the initial request and is the state in a
+     * challenge response that precipitated this incoming request.
      *
      * <pre>
      *     no-state (no pairing already for user) : solicit pairing phrase from user by issuing challenge response for GET_PAIRING_PHRASE
      *     no-state (pairing exists for user) : send authorization request to device and solicit access authorization on device by issuing challenge response for PENDING_DEVICE_APPROVAL
-     *
+     * 
      *     GET_PAIRING_PHRASE : pair the device and solicit pairing authorization on device by issuing challenge response for PENDING_PAIRING_COMPLETION
      *     PENDING_PAIRING_COMPLETION : send authorization request to device and solicit access authorization on device by issuing challenge response for PENDING_DEVICE_APPROVAL
      *     PENDING_DEVICE_APPROVAL : obtain device aproval/denial and issue corresponding allow/deny
@@ -256,10 +270,11 @@ public class RadiusListener {
                 Flow.StateCfg scfg = flow.getConfig(state);
                 State next = null;
 
-                for(Transition t : scfg.getTransitions()) {
+                for (Transition t : scfg.getTransitions()) {
                     if (t.isTriggered(req, serverData)) {
                         next = t.getNextState();
-                        req.stateHolder.setState(next); // next state must be set here so that .then() processors get target state values like message
+                        req.stateHolder.setState(next); // next state must be set here so that .then() processors get
+                                                        // target state values like message
                         Flow.StateCfg nextCfg = flow.getConfig(next);
 
                         t.execute(req, serverData, nextCfg.getMessage());
@@ -268,11 +283,12 @@ public class RadiusListener {
                 }
 
                 if (next == null) {
-                    System.out.println(getTimeStampAsString() + "WARNING: no next state identified for incoming request with state " + state + " and user " + req.username + ". Ignoring.");
+                    System.out.println(getTimeStampAsString()
+                            + "WARNING: no next state identified for incoming request with state " + state
+                            + " and user " + req.username + ". Ignoring.");
                     // handle this
                 }
-            }
-            catch(Throwable t) {
+            } catch (Throwable t) {
                 System.out.println(getTimeStampAsString() + "------- Unable to process request");
                 t.printStackTrace();
                 System.out.println(getTimeStampAsString() + "------- Resume Listening");
@@ -281,46 +297,36 @@ public class RadiusListener {
     }
 
     /*
-    Entry point into Proof of Concept.
+     * Entry point into Proof of Concept.
      */
     public static void main(String[] args) throws IOException {
         // first define how our server will behave
         // when we support multiple clients we would need a custom Flows object for each.
-        //Flow flow = SampleFlows.SMS_PROD_DEMO_NO_PROVISIONING.getFlow();
+        // Flow flow = SampleFlows.SMS_PROD_DEMO_NO_PROVISIONING.getFlow();
 
-        Flow allowAllFlow = new Flow()
-                .addDefaultState(State.STARTING)
+        Flow allowAllFlow = new Flow().addDefaultState(State.STARTING)
 
-                .add(State.STARTING, "",
-                        // if password starts with '+' and has the length of a phone number we will attempt to set up
-                        // a new pairing.
-                        Transition.to(State.DONE)
-                                .when(new Trigger() {
-                                    @Override
-                                    public boolean isTriggered(RequestInfo req, Context ctx) {
-                                        return true;
-                                    }
-                                })
-                                .then(Send.radiusAccessAllowed())
-                )
-                .add(State.DONE, "");
+        .add(State.STARTING, "",
+        // if password starts with '+' and has the length of a phone number we will attempt to set up
+        // a new pairing.
+                Transition.to(State.DONE).when(new Trigger() {
+                    @Override
+                    public boolean isTriggered(RequestInfo req, Context ctx) {
+                        return true;
+                    }
+                }).then(Send.radiusAccessAllowed())).add(State.DONE, "");
 
-        Flow denyAllFlow = new Flow()
-                .addDefaultState(State.STARTING)
+        Flow denyAllFlow = new Flow().addDefaultState(State.STARTING)
 
-                .add(State.STARTING, "",
-                        // if password starts with '+' and has the length of a phone number we will attempt to set up
-                        // a new pairing.
-                        Transition.to(State.DONE)
-                                .when(new Trigger() {
-                                    @Override
-                                    public boolean isTriggered(RequestInfo req, Context ctx) {
-                                        return true;
-                                    }
-                                })
-                                .then(Send.radiusAccessReject("denying everyone"))
-                )
-                .add(State.DONE, "");
+        .add(State.STARTING, "",
+        // if password starts with '+' and has the length of a phone number we will attempt to set up
+        // a new pairing.
+                Transition.to(State.DONE).when(new Trigger() {
+                    @Override
+                    public boolean isTriggered(RequestInfo req, Context ctx) {
+                        return true;
+                    }
+                }).then(Send.radiusAccessReject("denying everyone"))).add(State.DONE, "");
 
         boolean allowAll = args.length == 1 && args[0].equals("allow-all");
 
@@ -330,5 +336,3 @@ public class RadiusListener {
         new RadiusListener(1815, flow).listen();
     }
 }
-
-

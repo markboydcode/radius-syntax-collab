@@ -1,10 +1,25 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius;
 
-import com.sun.identity.authentication.modules.radius.client.*;
-import com.sun.identity.authentication.modules.radius.server.RadiusRequestContext;
-import com.sun.identity.authentication.modules.radius.server.config.RadiusServiceStarter;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -12,15 +27,32 @@ import java.nio.channels.DatagramChannel;
 import java.security.SecureRandom;
 import java.util.Properties;
 
+import com.sun.identity.authentication.modules.radius.client.AccessAccept;
+import com.sun.identity.authentication.modules.radius.client.AccessChallenge;
+import com.sun.identity.authentication.modules.radius.client.AccessReject;
+import com.sun.identity.authentication.modules.radius.client.AccessRequest;
+import com.sun.identity.authentication.modules.radius.client.Attribute;
+import com.sun.identity.authentication.modules.radius.client.AttributeSet;
+import com.sun.identity.authentication.modules.radius.client.NASIPAddressAttribute;
+import com.sun.identity.authentication.modules.radius.client.NASPortAttribute;
+import com.sun.identity.authentication.modules.radius.client.Packet;
+import com.sun.identity.authentication.modules.radius.client.PacketFactory;
+import com.sun.identity.authentication.modules.radius.client.ReplyMessageAttribute;
+import com.sun.identity.authentication.modules.radius.client.RequestAuthenticator;
+import com.sun.identity.authentication.modules.radius.client.StateAttribute;
+import com.sun.identity.authentication.modules.radius.client.UserNameAttribute;
+import com.sun.identity.authentication.modules.radius.client.UserPasswordAttribute;
+import com.sun.identity.authentication.modules.radius.server.RadiusRequestContext;
+import com.sun.identity.authentication.modules.radius.server.config.RadiusServiceStarter;
+
 /**
  * Implements a console based RADIUS client that enables testing of a radius server. Looks for a radius.properties in
- * the current directory and if not found indicates it is missing and what keys and values are needed to run then
- * asks for username and password to start the authentication process and presents access-accept as a SUCCESS output
- * and access-reject as a FAILURE output before exiting. For access-challenge responses it presents the message field
- * and prompts for answer. Following the submitted value it issues a new access-request including the answer in the
- * password field and returning any state field that was in the original access-challenge response.
- *
- * Created by markboyd on 12/2/14.
+ * the current directory and if not found indicates it is missing and what keys and values are needed to run then asks
+ * for username and password to start the authentication process and presents access-accept as a SUCCESS output and
+ * access-reject as a FAILURE output before exiting. For access-challenge responses it presents the message field and
+ * prompts for answer. Following the submitted value it issues a new access-request including the answer in the password
+ * field and returning any state field that was in the original access-challenge response. Created by markboyd on
+ * 12/2/14.
  */
 public class ConsoleClient implements Runnable {
     public static final String CONFIG_FILE = "radius.properties";
@@ -36,7 +68,7 @@ public class ConsoleClient implements Runnable {
     private boolean logTraffic = false;
 
     public ConsoleClient(Properties props) {
-        if (! props.containsKey(SECRET_PROP) || ! props.containsKey(PORT_PROP) || ! props.containsKey(HOST_PROP)) {
+        if (!props.containsKey(SECRET_PROP) || !props.containsKey(PORT_PROP) || !props.containsKey(HOST_PROP)) {
             usage();
         }
         this.secret = props.getProperty(SECRET_PROP);
@@ -59,10 +91,11 @@ public class ConsoleClient implements Runnable {
     }
 
     public static void main(String[] args) throws IOException {
-        RadiusServiceStarter.getInstance(); // just references the starter to force build version to show on command line
+        RadiusServiceStarter.getInstance(); // just references the starter to force build version to show on command
+                                            // line
         File cfg = new File("./" + CONFIG_FILE);
 
-        if (! cfg.exists() || ! cfg.isFile()) {
+        if (!cfg.exists() || !cfg.isFile()) {
             usage();
         }
 
@@ -94,9 +127,9 @@ public class ConsoleClient implements Runnable {
             NASPortAttribute nasPort = new NASPortAttribute(chan.socket().getLocalPort());
             StateAttribute state = null;
 
-            //String username = "boydmr"; // TODO: restore
+            // String username = "boydmr"; // TODO: restore
             String username = getUserInputFor("Username", null);
-            //String passwordOrAnswer = "password"; // TODO: restore
+            // String passwordOrAnswer = "password"; // TODO: restore
             String passwordOrAnswer = getUserInputFor("Password", null);
             System.out.println();
 
@@ -135,13 +168,11 @@ public class ConsoleClient implements Runnable {
                     System.out.println("---> Sorry. Not Authenticated.");
                     System.out.println();
                     finished = true;
-                }
-                else if (res instanceof AccessAccept) {
+                } else if (res instanceof AccessAccept) {
                     System.out.println("---> SUCCESS! You've Authenticated!");
                     System.out.println();
                     finished = true;
-                }
-                else if (res instanceof AccessChallenge) {
+                } else if (res instanceof AccessChallenge) {
                     AccessChallenge chng = (AccessChallenge) res;
                     state = (StateAttribute) getAttribute(StateAttribute.class, res);
                     ReplyMessageAttribute msg = (ReplyMessageAttribute) getAttribute(ReplyMessageAttribute.class, res);
@@ -154,8 +185,7 @@ public class ConsoleClient implements Runnable {
                     System.out.println();
                 }
             }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -163,7 +193,7 @@ public class ConsoleClient implements Runnable {
     private Attribute getAttribute(Class clazz, Packet res) {
         AttributeSet atts = res.getAttributeSet();
 
-        for(int i=0; i<atts.size(); i++) {
+        for (int i = 0; i < atts.size(); i++) {
             Attribute att = atts.getAttributeAt(i);
             if (att.getClass() == clazz) {
                 return att;

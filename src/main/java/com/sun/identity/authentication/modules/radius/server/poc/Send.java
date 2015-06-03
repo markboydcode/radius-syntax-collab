@@ -1,16 +1,37 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server.poc;
-
-import com.sun.identity.authentication.modules.radius.client.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.sun.identity.authentication.modules.radius.client.AccessAccept;
+import com.sun.identity.authentication.modules.radius.client.AccessChallenge;
+import com.sun.identity.authentication.modules.radius.client.AccessReject;
+import com.sun.identity.authentication.modules.radius.client.Attribute;
+import com.sun.identity.authentication.modules.radius.client.AttributeSet;
+import com.sun.identity.authentication.modules.radius.client.Packet;
+import com.sun.identity.authentication.modules.radius.client.ReplyMessageAttribute;
+import com.sun.identity.authentication.modules.radius.client.ResponseAuthenticator;
+import com.sun.identity.authentication.modules.radius.client.StateAttribute;
+
 /**
- * Builder of processors that transmit RADIUS responses to the connected client.
- *
- * Created by markboyd on 6/30/14.
+ * Builder of processors that transmit RADIUS responses to the connected client. Created by markboyd on 6/30/14.
  */
 public class Send {
 
@@ -39,7 +60,8 @@ public class Send {
 
                 // and send it off
                 byte[] onTheWireFormat = response.getData();
-                System.out.println("<---- " + response.getType() + " - " + req.pkt.getIdentifier() + " for " + req.username);
+                System.out.println("<---- " + response.getType() + " - " + req.pkt.getIdentifier() + " for "
+                        + req.username);
                 dumpAttributesToStdOut(response);
 
                 try {
@@ -48,7 +70,10 @@ public class Send {
                     System.out.println("Unable to send response packet");
                     e.printStackTrace();
                 }
-                System.out.println("   -- DONE : " + ctx.ELAPSED_SECONDS_FORMATTER.format((System.currentTimeMillis() - req.start)) + "ms elapsed");
+                System.out
+                        .println("   -- DONE : "
+                                + ctx.ELAPSED_SECONDS_FORMATTER.format((System.currentTimeMillis() - req.start))
+                                + "ms elapsed");
                 System.out.println();
 
             }
@@ -57,17 +82,17 @@ public class Send {
 
     /**
      * Replace this at some point. Dumps attributes to standard out in raw hex and read-able chars (where possible)
+     * 
      * @param pkt
      */
     public static void dumpAttributesToStdOut(Packet pkt) {
         AttributeSet atts = pkt.getAttributeSet();
-        for(int i=0; i<atts.size(); i++) {
+        for (int i = 0; i < atts.size(); i++) {
             Attribute a = atts.getAttributeAt(i);
             System.out.println("    - " + a);
         }
         System.out.println();
     }
-
 
     /**
      * Crafts the response authenticator as per the Response Authenticator paragraph of section 3 of rfc 2865 and
@@ -96,8 +121,6 @@ public class Send {
         response.setAuthenticator(ra);
     }
 
-
-
     public static TransitionProcessor radiusAccessAllowed() {
         return new TransitionProcessor() {
             @Override
@@ -108,7 +131,8 @@ public class Send {
 
                 // and send it off
                 byte[] onTheWireFormat = response.getData();
-                System.out.println("<---- " + response.getType() + " - " + req.pkt.getIdentifier() + " for " + req.username);
+                System.out.println("<---- " + response.getType() + " - " + req.pkt.getIdentifier() + " for "
+                        + req.username);
                 dumpAttributesToStdOut(response);
 
                 try {
@@ -117,7 +141,10 @@ public class Send {
                     System.out.println("Unable to send response packet");
                     e.printStackTrace();
                 }
-                System.out.println("   -- DONE : " + ctx.ELAPSED_SECONDS_FORMATTER.format((System.currentTimeMillis() - req.start)) + "ms elapsed");
+                System.out
+                        .println("   -- DONE : "
+                                + ctx.ELAPSED_SECONDS_FORMATTER.format((System.currentTimeMillis() - req.start))
+                                + "ms elapsed");
                 System.out.println();
 
             }
@@ -137,7 +164,8 @@ public class Send {
 
                 // and send it off
                 byte[] onTheWireFormat = response.getData();
-                System.out.println("<---- " + response.getType() + " - " + req.pkt.getIdentifier() + " for " + req.username);
+                System.out.println("<---- " + response.getType() + " - " + req.pkt.getIdentifier() + " for "
+                        + req.username);
                 dumpAttributesToStdOut(response);
 
                 try {
@@ -146,7 +174,10 @@ public class Send {
                     System.out.println("Unable to send response packet");
                     e.printStackTrace();
                 }
-                System.out.println("   -- DONE : " + ctx.ELAPSED_SECONDS_FORMATTER.format((System.currentTimeMillis() - req.start)) + "ms elapsed");
+                System.out
+                        .println("   -- DONE : "
+                                + ctx.ELAPSED_SECONDS_FORMATTER.format((System.currentTimeMillis() - req.start))
+                                + "ms elapsed");
                 System.out.println();
             }
         };

@@ -1,9 +1,19 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server;
-
-import com.sun.identity.authentication.modules.radius.server.config.ClientConfig;
-import com.sun.identity.authentication.modules.radius.server.config.Constants;
-import com.sun.identity.authentication.modules.radius.server.config.RadiusServiceConfig;
-import com.sun.identity.authentication.modules.radius.server.config.ThreadPoolConfig;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,13 +33,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.identity.authentication.modules.radius.server.config.ClientConfig;
+import com.sun.identity.authentication.modules.radius.server.config.Constants;
+import com.sun.identity.authentication.modules.radius.server.config.RadiusServiceConfig;
+import com.sun.identity.authentication.modules.radius.server.config.ThreadPoolConfig;
+
 /**
- * Listens for incoming radius requests, validates they are for defined clients, drops packets that aren't, and
- * queues for handling those that are. If the listener is being shutdown then it accepts packets and drops them to
- * drain any buffered incoming requests which packets in process of being handled are polished off and can send their
- * responses through the backing channel. Then it closes the channel and exits.
- *
- * Created by markboyd on 11/13/14.
+ * Listens for incoming radius requests, validates they are for defined clients, drops packets that aren't, and queues
+ * for handling those that are. If the listener is being shutdown then it accepts packets and drops them to drain any
+ * buffered incoming requests which packets in process of being handled are polished off and can send their responses
+ * through the backing channel. Then it closes the channel and exits. Created by markboyd on 11/13/14.
  */
 public class Listener implements Runnable {
     private static final Logger cLog = Logger.getLogger(Listener.class.getName());
@@ -53,6 +66,7 @@ public class Listener implements Runnable {
     /**
      * Construct listener, opens the DatagramChannel to receive requests, sets up the thread pool, and launches the
      * listener's thread which will capture the requests, drop unauthorized clients, and spool to the thread pool.
+     * 
      * @param config
      */
     public Listener(RadiusServiceConfig config) {
@@ -98,6 +112,7 @@ public class Listener implements Runnable {
 
     /**
      * Indicates if the constructor successfully started up the listener.
+     * 
      * @return
      */
     public boolean isStartedSuccessfully() {
@@ -105,9 +120,10 @@ public class Listener implements Runnable {
     }
 
     /**
-     * Updates the configuration seen by this listener but should only be called when changes between the new handlerConfig
-     * and the only are limited to changes in the set of defined clients. Any other change requires that the listener
-     * be shutdown and possibly restarted.
+     * Updates the configuration seen by this listener but should only be called when changes between the new
+     * handlerConfig and the only are limited to changes in the set of defined clients. Any other change requires that
+     * the listener be shutdown and possibly restarted.
+     * 
      * @param config
      */
     public void updateConfig(RadiusServiceConfig config) {
@@ -116,10 +132,10 @@ public class Listener implements Runnable {
 
     /**
      * Blocking call that terminates the thread pool, tells the listener to drop any new requests, waits until the
-     * thread pool is empty, and then interrupts the listener thread in case it is blocked waiting for new requests.
-     * We must wait for the pool to empty before interrupting the listener thread since that closes the channel if
-     * the thread is blocked on waiting for a new request and a closed channel then throws exceptions when any
-     * request handlers in-progress attempt to send their responses to their clients.
+     * thread pool is empty, and then interrupts the listener thread in case it is blocked waiting for new requests. We
+     * must wait for the pool to empty before interrupting the listener thread since that closes the channel if the
+     * thread is blocked on waiting for a new request and a closed channel then throws exceptions when any request
+     * handlers in-progress attempt to send their responses to their clients.
      */
     public void terminate() {
         // tell listener to stop accepting requests if any come in while pool is shutting down
@@ -132,7 +148,7 @@ public class Listener implements Runnable {
         boolean finished = false;
         boolean interrupted = false;
 
-        while(! finished) {
+        while (!finished) {
             try {
                 cLog.log(Level.WARNING, "Waiting for RADIUS thread pool's " + pool.getActiveCount()
                         + " request handler(s) to finish processing.");
@@ -196,12 +212,12 @@ public class Listener implements Runnable {
 
                 if (clientConfig == null) {
                     cLog.log(Level.WARNING, "No Defined RADIUS Client matches IP address " + ipAddr
-                    + ". Dropping request.");
+                            + ". Dropping request.");
                     continue;
                 }
-                if (! clientConfig.classIsValid) {
-                    cLog.log(Level.WARNING, "Declared Handler Class for Client '" + clientConfig.name +
-                            "' is not valid. See earlier loading exception. Dropping request.");
+                if (!clientConfig.classIsValid) {
+                    cLog.log(Level.WARNING, "Declared Handler Class for Client '" + clientConfig.name
+                            + "' is not valid. See earlier loading exception. Dropping request.");
                     continue;
                 }
                 // prepare buffer for draining and queue up a handler
@@ -209,8 +225,7 @@ public class Listener implements Runnable {
                 RadiusRequestContext reqCtx = new RadiusRequestContext(clientConfig, channel, iAddr);
 
                 pool.execute(new RadiusRequestHandler(reqCtx, bfr));
-            }
-            catch(Throwable t) {
+            } catch (Throwable t) {
                 cLog.log(Level.SEVERE, "Error receiving request.", t);
             }
         }
@@ -221,8 +236,7 @@ public class Listener implements Runnable {
         try {
             // be sure that channel is closed
             channel.close();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             // ignore
         }
         cLog.log(Level.INFO, "RADIUS Listener Exited.");

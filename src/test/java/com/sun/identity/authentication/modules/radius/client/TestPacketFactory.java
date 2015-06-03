@@ -1,28 +1,40 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.client;
-
-import com.sun.identity.authentication.modules.radius.PacketType;
-import com.sun.identity.authentication.modules.radius.Utils;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import com.sun.identity.authentication.modules.radius.PacketType;
+import com.sun.identity.authentication.modules.radius.Utils;
+
 /**
- * Unit tests for PacketFactory.
- *
- * Created by markboyd on 6/19/14.
+ * Unit tests for PacketFactory. Created by markboyd on 6/19/14.
  */
 public class TestPacketFactory {
 
     @Test
     public void testRfc2865_7_1_example() throws UnknownHostException {
-        String hex =
-                "01 00 00 38 0f 40 3f 94 73 97 80 57 bd 83 d5 cb" +
-                "98 f4 22 7a 01 06 6e 65 6d 6f 02 12 0d be 70 8d" +
-                "93 d4 13 ce 31 96 e4 3f 78 2a 0a ee 04 06 c0 a8" +
-                "01 10 05 06 00 00 00 03";
+        String hex = "01 00 00 38 0f 40 3f 94 73 97 80 57 bd 83 d5 cb"
+                + "98 f4 22 7a 01 06 6e 65 6d 6f 02 12 0d be 70 8d" + "93 d4 13 ce 31 96 e4 3f 78 2a 0a ee 04 06 c0 a8"
+                + "01 10 05 06 00 00 00 03";
 
         ByteBuffer bfr = Utils.toBuffer(hex);
         dumpBfr(bfr);
@@ -32,9 +44,9 @@ public class TestPacketFactory {
         Assert.assertEquals(pkt.getIdentifier(), 0, "packet identifier should have been 0");
         Assert.assertEquals(pkt.getAttributeSet().size(), 4, "packet attributes contained");
 
-        Assert.assertEquals(pkt.getAttributeAt(0).getClass().getSimpleName(),
-                UserNameAttribute.class.getSimpleName(), "0 attribute");
-        Assert.assertEquals(((UserNameAttribute)pkt.getAttributeAt(0)).getName(), "nemo","user name");
+        Assert.assertEquals(pkt.getAttributeAt(0).getClass().getSimpleName(), UserNameAttribute.class.getSimpleName(),
+                "0 attribute");
+        Assert.assertEquals(((UserNameAttribute) pkt.getAttributeAt(0)).getName(), "nemo", "user name");
 
         Assert.assertEquals(pkt.getAttributeAt(1).getClass().getSimpleName(),
                 UserPasswordAttribute.class.getSimpleName(), "1 attribute");
@@ -42,19 +54,18 @@ public class TestPacketFactory {
         Assert.assertEquals(pkt.getAttributeAt(2).getClass().getSimpleName(),
                 NASIPAddressAttribute.class.getSimpleName(), "2 attribute");
         Assert.assertEquals(((NASIPAddressAttribute) pkt.getAttributeAt(2)).getIpAddress(),
-                InetAddress.getByAddress(new byte[]{(byte)192, (byte)168,1,16}), "NAS IP address");
+                InetAddress.getByAddress(new byte[] { (byte) 192, (byte) 168, 1, 16 }), "NAS IP address");
 
-        Assert.assertEquals(pkt.getAttributeAt(3).getClass().getSimpleName(),
-                NASPortAttribute.class.getSimpleName(), "3 attribute");
-        Assert.assertEquals(((NASPortAttribute)pkt.getAttributeAt(3)).getPort(), 3,"NAS port");
+        Assert.assertEquals(pkt.getAttributeAt(3).getClass().getSimpleName(), NASPortAttribute.class.getSimpleName(),
+                "3 attribute");
+        Assert.assertEquals(((NASPortAttribute) pkt.getAttributeAt(3)).getPort(), 3, "NAS port");
 
     }
 
     /**
-     * dumps to std out in sets of 16 hex bytes separated by spaces
-     * and prefixed with '0' for bytes having value less than 0x10.
-     * The buffer is returned as was meaning ready to read from the
-     * same point as when it was passed to this method.
+     * dumps to std out in sets of 16 hex bytes separated by spaces and prefixed with '0' for bytes having value less
+     * than 0x10. The buffer is returned as was meaning ready to read from the same point as when it was passed to this
+     * method.
      *
      * @param bfr
      */
@@ -64,10 +75,10 @@ public class TestPacketFactory {
         bfr.mark();
         int i = 0;
 
-        for(;bfr.hasRemaining();) {
+        for (; bfr.hasRemaining();) {
             if (i == 16) {
                 System.out.println();
-                i=0;
+                i = 0;
             }
             i++;
             byte b = bfr.get();
@@ -89,24 +100,26 @@ public class TestPacketFactory {
         String hex = "01 06 6e 65 6d 6f";
         ByteBuffer bfr = Utils.toBuffer(hex);
         Attribute att = PacketFactory.nextAttribute(bfr);
-        Assert.assertEquals(att.getClass().getSimpleName(), UserNameAttribute.class.getSimpleName(), "wrong attribute class instantiated");
+        Assert.assertEquals(att.getClass().getSimpleName(), UserNameAttribute.class.getSimpleName(),
+                "wrong attribute class instantiated");
         UserNameAttribute una = (UserNameAttribute) att;
         Assert.assertEquals(una.getName(), "nemo");
     }
 
     // dumps out to console different views of a byte including as a short, int, and byte value and the hexadecimal
     // and signed interpretation.
-    //@Test
+    // @Test
     private void testBytes() {
         byte b = 0x00;
         byte[] bytes = new byte[1];
 
-        for(int i=0; i<256; i++) {
+        for (int i = 0; i < 256; i++) {
             bytes[0] = b;
             int j = ((int) b) & 0xFF;
             short k = (short) j;
 
-            System.out.println((b>0 ? " " : "") + b + " " + Utils.toSpacedHex(ByteBuffer.wrap(bytes)) + " " + j + " " + k + " - " + (bytes[0] & 0xFF));
+            System.out.println((b > 0 ? " " : "") + b + " " + Utils.toSpacedHex(ByteBuffer.wrap(bytes)) + " " + j + " "
+                    + k + " - " + (bytes[0] & 0xFF));
             b++;
         }
     }

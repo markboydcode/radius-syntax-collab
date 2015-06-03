@@ -1,13 +1,25 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development and
+ * Distribution License (the License). You may not use this file except in compliance with the
+ * License.
+ *
+ * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
+ * specific language governing permission and limitations under the License.
+ *
+ * When distributing Covered Software, include this CDDL Header Notice in each file and include
+ * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
+ * Header, with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions copyright [year] [name of copyright owner]".
+ *
+ * Copyright 2015 LDS
+ */
 package com.sun.identity.authentication.modules.radius.server;
 
-import com.sun.identity.authentication.modules.radius.RADIUSServer;
-import com.sun.identity.authentication.modules.radius.client.ChallengeException;
-import com.sun.identity.authentication.modules.radius.client.RadiusConn;
-import com.sun.identity.authentication.modules.radius.client.RejectException;
-import com.sun.identity.authentication.modules.radius.server.poc.RadiusListener;
-
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ClosedByInterruptException;
@@ -20,15 +32,19 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.sun.identity.authentication.modules.radius.RADIUSServer;
+import com.sun.identity.authentication.modules.radius.client.ChallengeException;
+import com.sun.identity.authentication.modules.radius.client.RadiusConn;
+import com.sun.identity.authentication.modules.radius.client.RejectException;
+import com.sun.identity.authentication.modules.radius.server.poc.RadiusListener;
+
 /**
  * Uses openAM's radius authentication module code to fire off requests against the RadiusListener test radius server
- * crafted by modifying and enhancing openAM's radius client code.
- *
- * Created by markboyd on 6/18/14.
+ * crafted by modifying and enhancing openAM's radius client code. Created by markboyd on 6/18/14.
  */
 public class TestServer {
 
-    //@Test
+    // @Test
     public void test() throws IOException, RejectException, NoSuchAlgorithmException, ChallengeException {
         // TODO make this a real integration test by spinning up a suitable flow for simple authentication
         // then start a thread for running the listener and have code in the flow watching for specific
@@ -36,44 +52,40 @@ public class TestServer {
         // verify client side that we get the expected responses.
 
         // start up a RadiusListener with a custom flow for our test
-//        Flow flow = new Flow()
-//                .add(S)
+        // Flow flow = new Flow()
+        // .add(S)
         // set up a set the set of servers needed by the openAM radius client codebase
         Set<RADIUSServer> secondaryServers = new LinkedHashSet<RADIUSServer>();
         Set<RADIUSServer> primaryServers = new LinkedHashSet<RADIUSServer>();
 
-        //primaryServers.add(new RADIUSServer("l8027.ldschurch.org", RadiusListener.DEFAULT_AUTH_PORT));
+        // primaryServers.add(new RADIUSServer("l8027.ldschurch.org", RadiusListener.DEFAULT_AUTH_PORT));
         primaryServers.add(new RADIUSServer("localhost", RadiusListener.DEFAULT_AUTH_PORT));
 
         String sharedSecret = "password1";
         int iTimeOut = 5; // seconds
         int healthCheckInterval = 5; // seconds
 
-        RadiusConn conn = new RadiusConn(primaryServers, secondaryServers,
-                sharedSecret, iTimeOut, healthCheckInterval);
+        RadiusConn conn = new RadiusConn(primaryServers, secondaryServers, sharedSecret, iTimeOut, healthCheckInterval);
 
         int loop = 1;
-        for(int i=0; i<loop; i++) {
+        for (int i = 0; i < loop; i++) {
             try {
-                conn.authenticate( "boydmr", "secret");
-            }
-            catch (RejectException re) {
+                conn.authenticate("boydmr", "secret");
+            } catch (RejectException re) {
                 System.out.println("--- REJECTED: boydmr");
             }
 
             try {
-                conn.authenticate( "alice", "alicepwd");
+                conn.authenticate("alice", "alicepwd");
                 System.out.println("--- ACCEPTED: alice");
-            }
-            catch (RejectException re) {
+            } catch (RejectException re) {
                 System.out.println("--- REJECTED: alice");
             }
 
             try {
-                conn.authenticate( "sam", "wrong");
+                conn.authenticate("sam", "wrong");
                 System.out.println("--- ACCEPTED: sam");
-            }
-            catch (RejectException re) {
+            } catch (RejectException re) {
                 System.out.println("--- REJECTED: sam");
             }
         }
@@ -89,18 +101,14 @@ public class TestServer {
         List<Thread> responders = new ArrayList<Thread>();
     }
 
-    //@Test
+    // @Test
     public void testformat() {
         System.out.println(MessageFormat.format("RADIUS-{0,number,#####}-Listener", 1899));
     }
 
-
-
-
-    //@Test
+    // @Test
     public void testInterruptsOfDatagramChannel() {
         final Data data = new Data();
-
 
         Runnable client = new Runnable() {
             @Override
@@ -117,7 +125,7 @@ public class TestServer {
                 ByteBuffer encd = utf8.encode(c); // already flipped ready to read out
 
                 // wait for server to broadcast its port
-                while(data.serverPort == -1) {
+                while (data.serverPort == -1) {
                     System.out.println("client waiting");
                     try {
                         Thread.sleep(200);
@@ -189,7 +197,7 @@ public class TestServer {
                 data.state = "got it";
 
                 // now wait until listener sets state to 'terminated'
-                while(! data.state.equals("terminated")) {
+                while (!data.state.equals("terminated")) {
                     try {
                         Thread.sleep(300);
                     } catch (InterruptedException e) {
@@ -226,7 +234,7 @@ public class TestServer {
                 data.serverPort = data.serverChan.socket().getLocalPort();
                 SocketAddress addr = null;
 
-                while (! data.listenerTerminated) {
+                while (!data.listenerTerminated) {
                     data.serverBuf = ByteBuffer.allocate(200); // ready for writing into
                     System.out.println("listener awaiting req");
                     try {
@@ -234,7 +242,7 @@ public class TestServer {
                         System.out.println("listener recevd req, launching responder");
                         data.serverBuf.flip(); // so responder can read back out
 
-                        ////// launch responder here
+                        // //// launch responder here
                         Thread r = new Thread(responder);
                         data.responders.add(r);
                         r.start();
@@ -255,7 +263,7 @@ public class TestServer {
         new Thread(terminator).start();
         new Thread(listener).start();
 
-        while(! data.state.equals("done")) {
+        while (!data.state.equals("done")) {
             System.out.println("main waiting");
             try {
                 Thread.sleep(1000);
