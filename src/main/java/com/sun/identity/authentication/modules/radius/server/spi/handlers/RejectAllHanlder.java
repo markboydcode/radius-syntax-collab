@@ -43,7 +43,7 @@ public class RejectAllHanlder implements AccessRequestHandler {
     /**
      * Doesn't have any items to be purged at shutdown so it returns a null value.
      *
-     * @return
+     * @return a null ShutdownListener reference.
      */
     @Override
     public ShutdownListener getShutdownListener() {
