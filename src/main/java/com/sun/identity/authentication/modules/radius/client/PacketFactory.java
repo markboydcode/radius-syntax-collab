@@ -32,12 +32,20 @@
 package com.sun.identity.authentication.modules.radius.client;
 
 import com.sun.identity.authentication.modules.radius.PacketType;
-import com.sun.identity.authentication.modules.radius.server.poc.RadiusListener;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Provides unmarshalling from the on-the-wire radius byte stream to the corresponding java objects. The old byte
+ * array mechanism is support that was in the original radius authentication module. Additionally, the newer nio
+ * {@link java.nio.ByteBuffer} added for radius server support is available.
+ */
 public class PacketFactory
 {
+    private static final Logger cLog = Logger.getLogger(PacketFactory.class.getName());
+
 	public static Packet toPacket(byte data[])
 	{
         // for old byte array approach we may have a array longer than packet so trim ByteBuffer down to just
@@ -98,12 +106,9 @@ public class PacketFactory
                 pkt = new AccessRequest();
                 pkt.setAuthenticator(new RequestAuthenticator(authData));
                 break;
-//            case ACCOUNTING_REQUEST:
-//                break;
-//            case ACCOUNTING_RESPONSE:
-//                break;
+            case UNKNOWN:
             default:
-                System.out.println(RadiusListener.getTimeStampAsString() + "WARNING: Unhandled packet type: " + type);
+                cLog.log(Level.WARNING, "Unsupported packet type code '" + code + "' received. Unable to handle packet.");
                 return null;
         }
         pkt.setIdentifier(id);
