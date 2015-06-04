@@ -27,7 +27,7 @@ public class CallerStationIdAttribute extends Attribute {
     private byte[] octets = null;
 
     /**
-     * The callback id value.
+     * The called station id value.
      */
     private String str = null;
 
