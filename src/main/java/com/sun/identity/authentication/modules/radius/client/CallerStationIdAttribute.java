@@ -17,7 +17,7 @@
 package com.sun.identity.authentication.modules.radius.client;
 
 /**
- * Class representing the structure of the Calling-Station-Id attribute as specified in section 5.31 of RFC 2865 and
+ * Class representing the structure of the Called-Station-Id attribute as specified in section 5.30 of RFC 2865 and
  * able to be instantiated from the on-the-wire bytes.
  */
 public class CallerStationIdAttribute extends Attribute {
