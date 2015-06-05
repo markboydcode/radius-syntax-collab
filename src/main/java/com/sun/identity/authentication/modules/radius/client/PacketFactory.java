@@ -142,6 +142,9 @@ public class PacketFactory
         bfr.mark(); // mark the start of the attribute's data chunk
         byte attType = bfr.get(); // pull off the type
 
+        // Note that section 5 or RFC 2865 indicates:
+        // "The Length field is one octet, and indicates the length of this Attribute including the Type, Length
+        // and Value fields."
         byte len = bfr.get(); // get its data length, byte is signed so we need to convert to unsigned byte
         int length = ((int) len) & 0xFF; // may have gotten sign extension so trim down to one byte
 
