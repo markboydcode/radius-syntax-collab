@@ -15,16 +15,15 @@
  */
 package com.sun.identity.authentication.modules.radius.client;
 
+import com.sun.identity.authentication.modules.radius.Rfc2865Examples;
+import com.sun.identity.authentication.modules.radius.Utils;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.sun.identity.authentication.modules.radius.Rfc2865Examples;
-import com.sun.identity.authentication.modules.radius.Utils;
 
 /**
  * Created by markboyd on 6/19/14.
@@ -66,8 +65,8 @@ public class TestUserPasswordAttribute {
      * Tests the first boundary incurrence meaning the password length is the same length as the 16 byte hash used for
      * XOR'ing.
      *
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
+     * @throws java.security.NoSuchAlgorithmException
+     * @throws java.io.IOException
      */
     @Test
     public void test15charPwd() throws NoSuchAlgorithmException, IOException {
@@ -85,8 +84,8 @@ public class TestUserPasswordAttribute {
      * Tests the first boundary incurrence meaning the password length is one char more than the 16 byte hash used for
      * XOR'ing.
      *
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
+     * @throws java.security.NoSuchAlgorithmException
+     * @throws java.io.IOException
      */
     @Test
     public void test16charPwd() throws NoSuchAlgorithmException, IOException {
@@ -114,7 +113,8 @@ public class TestUserPasswordAttribute {
 
     @Test
     public void testMultiByteCharPwd() throws NoSuchAlgorithmException, IOException {
-        String pwd = "ソフトウェア建築家"; // my poor attempt at "software architect" in japanese
+        String pwd = "\u30BD\u30D5\u30C8\u30A6\u30A7\u30A2\u5EFA\u7BC9\u5BB6"; // my poor attempt at "software architect" in japanese
+        System.out.println("- " + pwd);
         SecureRandom rand = new SecureRandom();
         RequestAuthenticator ra = new RequestAuthenticator(rand, secret);
         UserPasswordAttribute upa = new UserPasswordAttribute(ra, secret, pwd);
