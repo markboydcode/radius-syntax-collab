@@ -32,7 +32,8 @@ public final class AttributeFactory {
     /**
      * Performs the translation based upon the first octed in the passed in on-the-wire representation.
      *
-     * @param data the raw octets received in a radius packet on the wire.
+     * @param data the raw octets received in a radius packet on the wire for the attribute including leading
+     *             attribute type code octet and length octet.
      * @return the corresponding subclass of the {@link com.sun.identity.authentication.modules.radius.client.Attribute}
      * class or an instance of the {@link com.sun.identity.authentication.modules.radius.client.GenericAttribute}
      * class if the field type is unrecognized and hence not supported.
