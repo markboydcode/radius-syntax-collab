@@ -49,6 +49,7 @@ public class CHAPPasswordAttribute extends Attribute {
      * @param identifier the CHAP identifier
      */
     public CHAPPasswordAttribute(String password, int identifier) {
+        super(CHAP_PASSWORD);
         this.password = password;
         this.ident = identifier;
         octets = new byte[19];
@@ -64,7 +65,7 @@ public class CHAPPasswordAttribute extends Attribute {
             }
             s = s2;
         }
-        octets[0] = CHAP_PASSWORD;
+        octets[0] = (byte) super.getType();
         octets[1] = 19;
         octets[2] = (byte) this.ident;
         System.arraycopy(s, 0, octets, 3, 16);
