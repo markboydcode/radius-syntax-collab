@@ -19,12 +19,52 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The packet types in RADIUS rfc 2865. Created by markboyd on 6/18/14.
+ * The packet types in RADIUS rfc 2865 and 2866.
+ *
+ * Created by markboyd on 6/18/14.
  */
 public enum PacketType {
 
-    ACCESS_REQUEST(1), ACCESS_ACCEPT(2), ACCESS_REJECT(3), ACCOUNTING_REQUEST(4), ACCOUNTING_RESPONSE(5), ACCESS_CHALLENGE(
-            11), RESERVED(255);
+    /**
+     * Enum representing the Access-Request packet type specified in section 4.1 of RFC 2865.
+     */
+    ACCESS_REQUEST(1),
+
+    /**
+     * Enum representing the Access-Accept packet type specified in section 4.2 of RFC 2865.
+     */
+    ACCESS_ACCEPT(2),
+
+    /**
+     * Enum representing the Access-Reject packet type specified in section 4.3 of RFC 2865.
+     */
+    ACCESS_REJECT(3),
+
+    /**
+     * Enum representing the Accounting-Request packet type specified in section 4.1 of RFC 2866.
+     */
+    ACCOUNTING_REQUEST(4),
+
+    /**
+     * Enum representing the Accounting-Response packet type specified in section 4.2 of RFC 2866.
+     */
+    ACCOUNTING_RESPONSE(5),
+
+    /**
+     * Enum representing the Access-Challenge packet type specified in section 4.4 of RFC 2865.
+     */
+    ACCESS_CHALLENGE(11),
+
+    /**
+     * Enum representing the reserved packet type specified in section 3 of RFC 2865.
+     */
+    RESERVED(255),
+
+    /**
+     * Enum used to represent unrecognized and hence unsupported packet type codes. This is solely for use in this
+     * library and is not representative of any RFC specification.
+     */
+    UNKNOWN(Integer.MIN_VALUE);
 
     /**
      * The integer code indicating the type of the packet.
@@ -71,9 +111,15 @@ public enum PacketType {
      * Get the PacketType corresponding to a given code from an incoming packet.
      *
      * @param code
-     * @return
+     * @return the PacketType representing the corresponding on-the-wire type code or UNKNOWN if the integer code is
+     * for a packet type that is not yet supported.
      */
     public static final PacketType getPacketType(int code) {
-        return types.get(code);
+        PacketType pt = types.get(code);
+
+        if (pt == null) {
+            return UNKNOWN;
+        }
+        return pt;
     }
 }
