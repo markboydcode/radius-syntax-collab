@@ -113,7 +113,7 @@ public class TestUserPasswordAttribute {
 
     @Test
     public void testMultiByteCharPwd() throws NoSuchAlgorithmException, IOException {
-        String pwd = "\u30BD\u30D5\u30C8\u30A6\u30A7\u30A2\u5EFA\u7BC9\u5BB6"; // my poor attempt at "software architect" in japanese
+        String pwd = "\u30BD\u30D5\u30C8\u30A6\u30A7\u30A2\u5EFA\u7BC9\u5BB6"; // "software architect" in japanese
         System.out.println("- " + pwd);
         SecureRandom rand = new SecureRandom();
         RequestAuthenticator ra = new RequestAuthenticator(rand, secret);
